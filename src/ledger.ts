@@ -83,6 +83,9 @@ export function findLedgerQuestion(
   });
 
   const checkedFiles: string[] = [];
+  const prefixMatches: FoundLedgerQuestion[] = [];
+  const availableIdsBySubject: string[] = [];
+
   for (const entry of orderedDirs) {
     const file = join(root, entry.dir, "错题集", "题库.json");
     if (!existsSync(file)) continue;
@@ -96,20 +99,46 @@ export function findLedgerQuestion(
     const questions: LedgerQuestion[] = Array.isArray(parsed?.questions)
       ? parsed.questions
       : [];
-    const hit = questions.find((q) => q && String(q.id).trim() === targetId);
-    if (hit) {
+    const ids = questions.map((q) => String(q?.id || "").trim()).filter(Boolean);
+    if (ids.length) {
+      availableIdsBySubject.push(`${entry.subject}: [${ids.join(", ")}]`);
+    }
+    const exactHit = questions.find(
+      (q) => q && String(q.id).trim().toUpperCase() === upper,
+    );
+    if (exactHit) {
       return {
         subject: String(parsed?.subject || entry.subject),
         subjectDir: entry.dir,
         ledgerFile: file,
         bankTitle: String(parsed?.title || `${entry.subject}错题集`),
-        question: hit,
+        question: exactHit,
       };
+    }
+    for (const q of questions) {
+      if (q && String(q.id).trim().toUpperCase().startsWith(upper)) {
+        prefixMatches.push({
+          subject: String(parsed?.subject || entry.subject),
+          subjectDir: entry.dir,
+          ledgerFile: file,
+          bankTitle: String(parsed?.title || `${entry.subject}错题集`),
+          question: q,
+        });
+      }
     }
   }
 
+  if (prefixMatches.length === 1) {
+    return prefixMatches[0];
+  }
+  if (prefixMatches.length > 1) {
+    throw new Error(
+      `Question "${targetId}" matched multiple sub-questions: ${prefixMatches.map((m) => m.question.id).join(", ")}. Please specify the exact sub-question ID.`,
+    );
+  }
+
   throw new Error(
-    `Question "${targetId}" not found in ledger root "${root}" (checked ${checkedFiles.length} 题库.json files)`,
+    `Question "${targetId}" not found in ledger root "${root}" (checked ${checkedFiles.length} 题库.json files). Available IDs: ${availableIdsBySubject.join("; ") || "none"}`,
   );
 }
 
@@ -156,9 +185,9 @@ export function buildPracticePrompt(
     headerLines.push(
       "",
       `### 任务要求（deep_question 同考点变式巩固）`,
-      `1. 请围绕原题知识点「${q.topic || found.subject}」及对应教材章节，设计 **${numVariants} 道同类变式练习题**（难度梯度：第 1 道同水平巩固，第 2 道微调条件或逆向设问防粗心）。`,
+      `1. 请围绕原题知识点「${q.topic || found.subject}」及对应教材章节，设计 **${numVariants} 道同类变式练习题**（难度梯度：第 1 道同水平换数据巩固，第 2 道微调条件或逆向设问防粗心）。`,
       `2. 严禁超纲（控制在深圳七年级期中/期末真题难度范围内）。`,
-      `3. 每道变式题请依次给出：【变式题干】、【参考答案】、【简要解析与双方法核验结果】，以便直接整理进台账的 \`variant\` 字段并导出 Word 错题本。`,
+      `3. 探索阶段（Explore）最多做 1 次快速检索即可，不要在思考中重复冗长穷举；每道变式题的 \`explanation\` 请控制在 150–300 字以内，清晰给出核心列式、答案与简短核验结论，确保 JSON 完整输出。`,
     );
   }
 
