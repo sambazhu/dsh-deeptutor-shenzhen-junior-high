@@ -1,0 +1,21 @@
+# macOS & Python
+.DS_Store
+__pycache__/
+*.pyc
+
+# DSH IM 原始入站缓存与大体积收件箱原件
+.dsh-im/
+00_收件箱/已处理/
+00_收件箱/待处理/*.pdf
+00_收件箱/待处理/*.jpg
+00_收件箱/待处理/*.png
+00_收件箱/待处理/*.processing
+00_收件箱/*_备份_*.xlsx
+
+# 教材大体积 PDF（避免进 Git）
+00_教材与参考书/**/*.pdf
+
+# 提醒守护进程运行期日志与 PID
+09_提醒工具/*.log
+09_提醒工具/*.pid
+09_提醒工具/heartbeat.txt

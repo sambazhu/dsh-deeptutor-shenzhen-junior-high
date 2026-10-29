@@ -1,0 +1,26 @@
+{
+  "subject": "数学",
+  "title": "朱秋宇七年级数学错题集",
+  "questions": [
+    {
+      "id": "MATH-YYYYMMDD-NN",
+      "date": "YYYY-MM-DD",
+      "source": "试卷/作业/测验名称",
+      "type": "填空/选择/解答/实验/材料题",
+      "topic": "知识点",
+      "question": "题目正文。可以换行。",
+      "question_display": "",
+      "question_images": [
+        "原图/可选图片.png"
+      ],
+      "blank_lines": 8,
+      "answer": "参考答案",
+      "explanation": "详细解析，可多段。",
+      "mistake_reason": "错因提醒/复盘重点，可留空。",
+      "variant": "同类变式，可留空。",
+      "status": "待复习",
+      "explanation_source": "manual | deeptutor",
+      "verified": false
+    }
+  ]
+}
