@@ -137,6 +137,39 @@ def rebuild_kb_from_dir(kb_name: str, docs_dir: Path) -> None:
         print(f"[错误] 构建 {kb_name} 失败:\n{res.stdout}\n{res.stderr}")
         raise SystemExit(1)
     print(f"[完成] 知识库 {kb_name} 已就绪。")
+    sync_kb_to_partners(kb_name)
+
+
+def sync_kb_to_partners(kb_name: str) -> None:
+    """将更新后的知识库同步至所有已挂载同名知识库的伴学伙伴（Partner）工作区。"""
+    src_kb_dir = DEEPTUTOR_HOME / "data" / "knowledge_bases" / kb_name
+    main_cfg_file = DEEPTUTOR_HOME / "data" / "knowledge_bases" / "kb_config.json"
+    partners_root = DEEPTUTOR_HOME / "data" / "partners"
+    if not src_kb_dir.exists() or not partners_root.exists():
+        return
+    main_entry = None
+    if main_cfg_file.exists():
+        try:
+            main_cfg = json.loads(main_cfg_file.read_text(encoding="utf-8"))
+            main_entry = (main_cfg.get("knowledge_bases") or {}).get(kb_name)
+        except Exception:
+            pass
+    for p_dir in sorted(partners_root.glob("partner-*")):
+        p_kb_root = p_dir / "workspace" / "knowledge_bases"
+        p_kb_dir = p_kb_root / kb_name
+        if not p_kb_dir.exists():
+            continue
+        shutil.rmtree(p_kb_dir)
+        shutil.copytree(src_kb_dir, p_kb_dir)
+        p_cfg_file = p_kb_root / "kb_config.json"
+        if main_entry and p_cfg_file.exists():
+            try:
+                p_cfg = json.loads(p_cfg_file.read_text(encoding="utf-8"))
+                p_cfg.setdefault("knowledge_bases", {})[kb_name] = main_entry
+                p_cfg_file.write_text(json.dumps(p_cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+            except Exception:
+                pass
+        print(f"[伴学伙伴同步] 已刷新 {p_dir.name} 的知识库副本: {kb_name}")
 
 
 def ingest_g7_textbooks_from_raw() -> None:
