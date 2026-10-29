@@ -100,7 +100,7 @@ in `--help`, report that to the user instead of guessing.
   - Tools: `deeptutor_kb action=search kb=<kb> query="<topic>"`
   - CLI: `deeptutor kb search <kb> "<topic>" --format json`
   - Always list bases first (`deeptutor_kb action=list` / `deeptutor kb list --format json`) — never assume names.
-  - **Vector Retrieval Query Expansion Rule (IMPORTANT):** The local LlamaIndex engine is configured for pure semantic `vector` retrieval (`qwen3.7-text-embedding`, 1024D) to avoid English-BM25 noise on Chinese textbooks. Pure vector search is strong on natural-language concepts/formulas but weak on bare example/question numbers or short literal keywords (e.g. `"例2"`, `"第12题"`, `"例2 加法交换律"`). **Before calling `deeptutor_kb(action="search")`, if the query contains an example number, question number, or is a short keyword phrase (< 10 chars), always expand it into a descriptive natural-language query that includes the chapter/section context, mathematical operation, or concrete expression** (e.g. expand `"例2 加法交换律"` → `"第二章 有理数的加减运算 例2 如何运用加法交换律和结合律简便计算"`).
+  - **Vector + Rerank Retrieval Rule:** The local LlamaIndex engine is configured with two-stage retrieval (`vector` recall top 25 via `qwen3.7-text-embedding` + cross-encoder rerank via DashScope `qwen3.7-text-rerank`). **By default, search with the user's original query as-is** (including example numbers like `"例2 加法交换律"`). **Only if the #1 hit is clearly off-topic or from the wrong chapter**, retry once by expanding the short query into a descriptive natural-language sentence with chapter/section context or concrete formulas.
 
 ### 2. Deep Solve
 
