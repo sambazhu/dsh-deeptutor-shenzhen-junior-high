@@ -324,10 +324,6 @@ def export_subject_textbook_kb(book_cfg: dict[str, Any]) -> Path:
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    ver_md = LEDGER_ROOT / "00_台账规范" / "教材版本.md"
-    if ver_md.exists():
-        shutil.copy2(ver_md, out_dir / "深圳初中各科教材版本.md")
-
     tb_dir = LEDGER_ROOT / "00_教材与参考书" / book_cfg["dir"]
     if tb_dir.exists():
         for p in sorted(tb_dir.iterdir()):
