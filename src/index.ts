@@ -361,9 +361,11 @@ export function apply(ctx: Context) {
         });
         if (killed) throw new Error(configGuide() + "[deeptutor_kb timed out]");
         if (code !== 0) {
+          const errDetail = (stderr.trim() || stdout.trim() || "(none)");
+          const isBusinessErr = /Knowledge base .* not found/i.test(errDetail);
           throw new Error(
-            `[deeptutor_kb failed] exit=${code}\nstderr: ${truncate(stderr || "(none)", 2000)}` +
-              configGuide(),
+            `[deeptutor_kb failed] exit=${code}\nerror: ${truncate(errDetail, 2000)}` +
+              (isBusinessErr ? "" : configGuide()),
           );
         }
         let body = stdout.trim() || "(empty result)";

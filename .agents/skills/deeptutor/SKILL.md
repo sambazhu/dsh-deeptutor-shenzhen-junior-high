@@ -61,6 +61,7 @@ export DEEPTUTOR_REMOTE_HOME="/home/ubuntu/my-deeptutor"
 | Show a knowledge base's info | `deeptutor_kb action=info`       | `kb info <kb>`                                               |
 | Run a learning capability    | `deeptutor_run capability=<cap>` | `run <cap> "<prompt>" --format json`                         |
 | Archive a note to a notebook | `deeptutor_note`                 | `notebook add-md <nb-id> <file> --title "<t>" --type <type>` |
+| Explain ledger wrong question / generate variants | `deeptutor_practice` | — (reads `<subject>/错题集/题库.json` & calls `deep_solve` / `deep_question`) |
 | View lightweight memory      | — (CLI only)                     | `memory show`                                                |
 | List / inspect sessions      | — (CLI only)                     | `session list` · `session show <id>`                         |
 | Show a notebook's records    | — (CLI only)                     | `notebook show <name>`                                       |
@@ -95,10 +96,11 @@ in `--help`, report that to the user instead of guessing.
 ### 1. Gather material from both channels
 
 - `web_search` for **authoritative sources**: official docs (Microsoft Learn / learn.microsoft.com), official blogs, trusted tutorials. Keep the source links.
-- Search the user's personal knowledge base (pick the right one: dotnet-related → their dotnet base, database → sqlserver) to get their own curated notes:
+- Search the user's personal knowledge base (pick the right one: for Shenzhen Grade 7 subjects use `sz-g7-math-bsd` / `sz-g7-chinese-tb` / `sz-g7-english-hj` / `sz-g7-geography-xj` / `sz-g7-history-tb` / `sz-g7-biology-rj` / `sz-g7-morality-tb` / `qiuyu-wrongbook`):
   - Tools: `deeptutor_kb action=search kb=<kb> query="<topic>"`
   - CLI: `deeptutor kb search <kb> "<topic>" --format json`
   - Always list bases first (`deeptutor_kb action=list` / `deeptutor kb list --format json`) — never assume names.
+  - **Vector Retrieval Query Expansion Rule (IMPORTANT):** The local LlamaIndex engine is configured for pure semantic `vector` retrieval (`qwen3.7-text-embedding`, 1024D) to avoid English-BM25 noise on Chinese textbooks. Pure vector search is strong on natural-language concepts/formulas but weak on bare example/question numbers or short literal keywords (e.g. `"例2"`, `"第12题"`, `"例2 加法交换律"`). **Before calling `deeptutor_kb(action="search")`, if the query contains an example number, question number, or is a short keyword phrase (< 10 chars), always expand it into a descriptive natural-language query that includes the chapter/section context, mathematical operation, or concrete expression** (e.g. expand `"例2 加法交换律"` → `"第二章 有理数的加减运算 例2 如何运用加法交换律和结合律简便计算"`).
 
 ### 2. Deep Solve
 
