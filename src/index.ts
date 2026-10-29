@@ -19,11 +19,25 @@
  */
 import type { Context } from "@deepseek-ai/cordis";
 import { defineTool } from "@deepseek-ai/dsh-tools";
-import { CAPABILITIES, configGuide, configHint, SSH_HOST, truncate } from "./config.ts";
+import {
+  applyChildModePrompt,
+  CAPABILITIES,
+  CHILD_MODE,
+  configGuide,
+  configHint,
+  resolveSubjectKbs,
+  SSH_HOST,
+  truncate,
+} from "./config.ts";
 import { cliNoteLocal, cliNoteRemote, runCli } from "./cli-exec.ts";
 import { apiJson, ensureApi, killTunnel } from "./http-api.ts";
 import { renderHtml } from "./html-render.ts";
-import { cliRunTurn, fmtTurnResult, wsRunTurn } from "./turn.ts";
+import {
+  buildLedgerPatch,
+  buildPracticePrompt,
+  findLedgerQuestion,
+} from "./ledger.ts";
+import { cliRunTurn, fmtTurnResult, wsRunTurn, type RunParams, type TurnResult } from "./turn.ts";
 import { HTML_DOC_SCRIPT } from "./html-render.ts";
 
 export const name = "dsh-deeptutor";
@@ -111,6 +125,16 @@ export function apply(ctx: Context) {
           description:
             "HTML page title (default: derived from the html output file name)",
         },
+        subject: {
+          type: "string",
+          description:
+            "Optional Shenzhen Grade 7 subject name (e.g. 数学). When kbs is omitted, auto-mounts the subject textbook KB and wrongbook KB.",
+        },
+        child_mode: {
+          type: "boolean",
+          description:
+            "Optional child-tutoring safety guard override. When true (or DEEPTUTOR_CHILD_MODE=1), prepends Socratic anti-ghostwriting instructions.",
+        },
       },
       output: {
         schema: {
@@ -130,9 +154,27 @@ export function apply(ctx: Context) {
       async execute(args, exec) {
         const timeoutMs = (args.timeout ?? 600) * 1000;
         const maxChars = args.max_chars ?? 30000;
+        const effectiveKbs =
+          args.kbs && args.kbs.length > 0
+            ? args.kbs
+            : args.subject
+              ? resolveSubjectKbs(args.subject, true)
+              : args.kbs;
+        const effectivePrompt = applyChildModePrompt(
+          args.prompt,
+          args.child_mode ?? CHILD_MODE,
+        );
+        const effectiveLang =
+          args.language ?? (args.subject || args.child_mode ? "zh" : undefined);
+        const runParams: RunParams = {
+          ...args,
+          prompt: effectivePrompt,
+          kbs: effectiveKbs,
+          language: effectiveLang,
+        };
         try {
           if (await ensureApi()) {
-            const r = await wsRunTurn(args, timeoutMs, exec.signal);
+            const r = await wsRunTurn(runParams, timeoutMs, exec.signal);
             const htmlNote = await renderHtml(args, r.answer);
             return json({
               mode: "http",
@@ -152,7 +194,7 @@ export function apply(ctx: Context) {
         }
         // fallback: local/SSH CLI
         try {
-          const r = await cliRunTurn(args, timeoutMs, exec.signal);
+          const r = await cliRunTurn(runParams, timeoutMs, exec.signal);
           const htmlNote = await renderHtml(args, r.answer);
           return json({
             mode: "cli",
@@ -236,9 +278,21 @@ export function apply(ctx: Context) {
           try {
             if (await ensureApi()) {
               if (args.action === "list") {
-                const arr = await apiJson("/api/v1/knowledge/list", undefined, {
-                  signal: exec.signal,
-                });
+                let rawList: any;
+                try {
+                  rawList = await apiJson("/api/knowledge-bases", undefined, {
+                    signal: exec.signal,
+                  });
+                } catch {
+                  rawList = await apiJson("/api/v1/knowledge/list", undefined, {
+                    signal: exec.signal,
+                  });
+                }
+                const arr = Array.isArray(rawList)
+                  ? rawList
+                  : Array.isArray(rawList?.knowledge_bases)
+                    ? rawList.knowledge_bases
+                    : rawList;
                 const body = Array.isArray(arr)
                   ? arr
                       .map(
@@ -255,11 +309,20 @@ export function apply(ctx: Context) {
                     `Knowledge bases (${Array.isArray(arr) ? arr.length : "?"}):\n${body}`,
                 });
               }
-              const kb = await apiJson(
-                `/api/v1/knowledge/${encodeURIComponent(args.kb ?? "")}`,
-                undefined,
-                { signal: exec.signal },
-              );
+              let kb: any;
+              try {
+                kb = await apiJson(
+                  `/api/knowledge-bases/${encodeURIComponent(args.kb ?? "")}`,
+                  undefined,
+                  { signal: exec.signal },
+                );
+              } catch {
+                kb = await apiJson(
+                  `/api/v1/knowledge/${encodeURIComponent(args.kb ?? "")}`,
+                  undefined,
+                  { signal: exec.signal },
+                );
+              }
               return json({
                 action: "info",
                 mode: "http",
@@ -395,14 +458,23 @@ export function apply(ctx: Context) {
         // HTTP first
         try {
           if (await ensureApi()) {
-            const list = await apiJson("/api/v1/notebook/list", undefined, {
-              signal: exec.signal,
-            });
+            let list: any;
+            let useV2Routes = true;
+            try {
+              list = await apiJson("/api/notebooks", undefined, {
+                signal: exec.signal,
+              });
+            } catch {
+              useV2Routes = false;
+              list = await apiJson("/api/v1/notebook/list", undefined, {
+                signal: exec.signal,
+              });
+            }
             const notebooks: any[] = list?.notebooks ?? [];
             let nb = notebooks.find((n) => n.name?.trim() === nbName);
             if (!nb) {
               const created = await apiJson(
-                "/api/v1/notebook/create",
+                useV2Routes ? "/api/notebooks" : "/api/v1/notebook/create",
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -418,7 +490,9 @@ export function apply(ctx: Context) {
             const nbId = nb?.id ?? (typeof nb === "string" ? nb : undefined);
             if (!nbId) throw new Error("cannot resolve notebook id");
             const added = await apiJson(
-              "/api/v1/notebook/add_record",
+              useV2Routes
+                ? "/api/notebooks/actions/add-record"
+                : "/api/v1/notebook/add_record",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -462,6 +536,176 @@ export function apply(ctx: Context) {
           text:
             configHint() +
             `[note archived (CLI)] notebook=${nbName}, title=${args.title}, type=${recordType}\n${truncate((stdout ?? "").trim(), 2000)}`,
+        });
+      },
+    }),
+  );
+
+  // ---------- Tool 4: Shenzhen Grade 7 Learning Ledger practice & explanation ----------
+  ctx.tools.register(
+    defineTool({
+      name: "deeptutor_practice",
+      description:
+        "Read a wrong-question record by `question_id` from the Shenzhen Grade 7 Learning Ledger (`题库.json`, read-only), invoke DeepTutor (`deep_question` for variant questions and/or `deep_solve` for BNU textbook-aligned explanation with two-method verification), and return a structured JSON patch (`explanation_source: 'deeptutor'`, `verified: false`) for the ledger skill to review and write back.",
+      parameters: {
+        question_id: {
+          type: "string",
+          required: true,
+          description:
+            "Wrong-question ID in the Learning Ledger's 题库.json, e.g. MATH-20261016-12",
+        },
+        mode: {
+          type: "string",
+          enum: ["variant", "explain", "both"],
+          description:
+            "What to generate: variant (deep_question for similar exercises, default), explain (deep_solve for textbook-aligned explanation), or both",
+        },
+        subject: {
+          type: "string",
+          description:
+            "Optional subject hint (e.g. 数学); auto-detected from question_id if omitted",
+        },
+        num_variants: {
+          type: "number",
+          description: "Number of variant questions to generate, default 2",
+        },
+        kbs: {
+          type: "array",
+          items: { type: "string" },
+          description:
+            "Knowledge bases to mount; defaults to the subject's textbook KB + wrongbook KB (e.g. ['sz-g7-math-bsd', 'qiuyu-wrongbook'])",
+        },
+        child_mode: {
+          type: "boolean",
+          description:
+            "Optional child-mode guard override (prepends Socratic anti-ghostwriting instructions)",
+        },
+        ledger_root: {
+          type: "string",
+          description:
+            "Optional override for DEEPTUTOR_LEDGER_ROOT (defaults to /Users/sambazhu/dshworkplace/朱秋宇初一学习台账)",
+        },
+        timeout: {
+          type: "number",
+          description: "Timeout in seconds per turn, default 600",
+        },
+        max_chars: {
+          type: "number",
+          description: "Max characters returned, default 30000",
+        },
+      },
+      output: {
+        schema: {
+          type: "object",
+          properties: {
+            mode: { type: "string" },
+            questionId: { type: "string" },
+            subject: { type: "string" },
+            ledgerFile: { type: "string" },
+            sessionId: { type: "string" },
+            patch: { type: "object", additionalProperties: true },
+            text: { type: "string" },
+          },
+          additionalProperties: true,
+        },
+        render: (_args, value) => [{ type: "text", text: value.text ?? "" }],
+      },
+      async execute(args, exec) {
+        const practiceMode = (args.mode ?? "variant") as "variant" | "explain" | "both";
+        const numVariants = args.num_variants ?? 2;
+        const timeoutMs = (args.timeout ?? 600) * 1000;
+        const maxChars = args.max_chars ?? 30000;
+
+        const found = findLedgerQuestion(args.question_id, {
+          ledgerRoot: args.ledger_root,
+          subject: args.subject,
+        });
+        const kbs =
+          args.kbs && args.kbs.length > 0
+            ? args.kbs
+            : resolveSubjectKbs(found.subject, true);
+        const useChildMode = args.child_mode ?? CHILD_MODE;
+
+        const runOneTurn = async (params: RunParams): Promise<{ transport: "http" | "cli"; res: TurnResult }> => {
+          try {
+            if (await ensureApi()) {
+              const res = await wsRunTurn(params, timeoutMs, exec.signal);
+              return { transport: "http", res };
+            }
+          } catch (err: any) {
+            if (exec.signal.aborted) throw new Error("[deeptutor_practice cancelled]");
+            console.log(`[deeptutor_practice] HTTP/WS failed, falling back to CLI: ${err?.message}`);
+          }
+          const res = await cliRunTurn(params, timeoutMs, exec.signal);
+          return { transport: "cli", res };
+        };
+
+        let transport: "http" | "cli" = "http";
+        let sessionId: string | undefined;
+        let explanationOut: string | undefined;
+        let variantOut: string | undefined;
+
+        if (practiceMode === "explain" || practiceMode === "both") {
+          const explainPrompt = applyChildModePrompt(
+            buildPracticePrompt(found, "explain", numVariants),
+            useChildMode,
+          );
+          const { transport: t1, res: r1 } = await runOneTurn({
+            capability: "deep_solve",
+            prompt: explainPrompt,
+            kbs,
+            tools: ["rag"],
+            language: "zh",
+          });
+          transport = t1;
+          sessionId = r1.sessionId;
+          explanationOut = r1.answer;
+        }
+
+        if (practiceMode === "variant" || practiceMode === "both") {
+          const variantPrompt = applyChildModePrompt(
+            buildPracticePrompt(found, "variant", numVariants),
+            useChildMode,
+          );
+          const { transport: t2, res: r2 } = await runOneTurn({
+            capability: "deep_question",
+            prompt: variantPrompt,
+            kbs,
+            tools: ["rag"],
+            session_id: sessionId,
+            language: "zh",
+            config: { num_questions: numVariants },
+          });
+          transport = t2;
+          sessionId = r2.sessionId ?? sessionId;
+          variantOut = r2.answer;
+        }
+
+        const patch = buildLedgerPatch(found.question.id, {
+          explanation: explanationOut,
+          variant: variantOut,
+        });
+
+        const summaryParts: string[] = [
+          `[deeptutor_practice (${practiceMode}) done via ${transport}]`,
+          `- question_id: ${found.question.id} (${found.subject} · ${found.question.topic ?? ""})`,
+          `- ledger_file (read-only): ${found.ledgerFile}`,
+          `- mounted_kbs: ${kbs.join(", ")}`,
+          sessionId ? `- session_id: ${sessionId}` : "",
+          `- safety_tag: explanation_source="deeptutor", verified=false (❓待确认 — 请按台账双方法核验后再写入题库.json)`,
+          "",
+          `===== Ledger Write-Back Patch (JSON) =====`,
+          JSON.stringify(patch, null, 2),
+        ].filter(Boolean);
+
+        return json({
+          mode: transport,
+          questionId: found.question.id,
+          subject: found.subject,
+          ledgerFile: found.ledgerFile,
+          sessionId,
+          patch,
+          text: configHint() + truncate(summaryParts.join("\n"), maxChars),
         });
       },
     }),

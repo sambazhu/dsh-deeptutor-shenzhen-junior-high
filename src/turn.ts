@@ -24,19 +24,58 @@ export interface RunParams {
   config?: Record<string, unknown>;
 }
 
+/** Format `deep_question` qa_pair results from DeepTutor 1.6.x `result.metadata.summary.results`. */
+export function formatQaPairResults(results: unknown): string {
+  if (!Array.isArray(results) || results.length === 0) return "";
+  const blocks: string[] = [];
+  results.forEach((item: any, idx: number) => {
+    const qa = item?.qa_pair ?? item;
+    if (!qa || typeof qa !== "object" || !qa.question) return;
+    const lines: string[] = [`### 题目 ${idx + 1}（${qa.question_type || "练习"}）`];
+    if (qa.concentration) lines.push(`- **考点**：${qa.concentration}`);
+    lines.push(`- **题干**：${String(qa.question).trim()}`);
+    if (qa.options && typeof qa.options === "object") {
+      const opts = Array.isArray(qa.options)
+        ? qa.options.map((o: any, i: number) => `  - ${String.fromCharCode(65 + i)}. ${o}`).join("\n")
+        : Object.entries(qa.options)
+            .map(([k, v]) => `  - ${k}. ${v}`)
+            .join("\n");
+      if (opts) lines.push(`- **选项**：\n${opts}`);
+    }
+    if (qa.correct_answer !== undefined && qa.correct_answer !== null) {
+      lines.push(`- **参考答案**：${String(qa.correct_answer).trim()}`);
+    }
+    if (qa.explanation) {
+      lines.push(`- **解析**：${String(qa.explanation).trim()}`);
+    }
+    blocks.push(lines.join("\n"));
+  });
+  return blocks.join("\n\n");
+}
+
 /** Fold one event (WS or CLI JSONL) into the running turn state. Exported for unit tests. */
 export function collectEvent(state: TurnResult, e: any) {
   if (e.type === "content" && typeof e.content === "string") state.answer += e.content;
-  else if (e.type === "result" && typeof e.metadata?.response === "string")
-    state.answer = e.metadata.response;
-  else if (e.type === "error")
-    state.errors.push(typeof e.content === "string" ? e.content : JSON.stringify(e.metadata ?? ""));
+  else if (e.type === "result" && typeof e.metadata?.response === "string") {
+    const qaFormatted = formatQaPairResults(e.metadata?.summary?.results);
+    state.answer = qaFormatted
+      ? `${e.metadata.response.trim()}\n\n${qaFormatted}`
+      : e.metadata.response;
+  } else if (e.type === "error" || e.type === "protocol_error")
+    state.errors.push(
+      typeof e.content === "string" && e.content
+        ? e.content
+        : typeof e.message === "string" && e.message
+          ? e.message
+          : JSON.stringify(e.metadata ?? ""),
+    );
   else if (e.type === "tool_call")
     state.toolCalls.push(
       typeof e.content === "string" ? e.content : String(e.metadata?.name ?? ""),
     );
   else if (e.type === "session_meta" && e.metadata?.title) state.title = e.metadata.title;
-  if (!state.sessionId && typeof e.session_id === "string") state.sessionId = e.session_id;
+  if (!state.sessionId && typeof e.session_id === "string" && e.session_id)
+    state.sessionId = e.session_id;
 }
 
 /** Execute one turn over WebSocket (streaming). */
@@ -49,7 +88,7 @@ export function wsRunTurn(
     if (signal?.aborted) return reject(new Error("Aborted"));
     const WSImpl: any = (globalThis as any).WebSocket;
     if (!WSImpl) return reject(new Error("WebSocket is not available in this environment"));
-    const ws = new WSImpl(`${API_BASE.replace(/^http/, "ws")}/api/v1/ws`);
+    const ws = new WSImpl(`${API_BASE.replace(/^http/, "ws")}/ws`);
     let settled = false;
     const state: TurnResult = { answer: "", errors: [], toolCalls: [] };
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -81,6 +120,7 @@ export function wsRunTurn(
       ws.send(
         JSON.stringify({
           type: "start_turn",
+          protocol_version: "2.0",
           content: params.prompt,
           capability: params.capability,
           session_id: params.session_id ?? null,
@@ -103,12 +143,16 @@ export function wsRunTurn(
         return;
       }
       collectEvent(state, e);
-      if (e.type === "done") {
+      if (e.type === "done" || e.type === "protocol_error") {
         finish(() => {
           try {
             ws.close();
           } catch {}
-          resolve(state);
+          if (e.type === "protocol_error" && !state.answer) {
+            reject(new Error(`WebSocket protocol_error: ${e.message || e.error_code || "unknown"}`));
+          } else {
+            resolve(state);
+          }
         });
       }
     };

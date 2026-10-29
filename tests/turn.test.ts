@@ -26,6 +26,32 @@ test("collectEvent replaces the answer on a final result event", () => {
   assert.equal(s.answer, "final answer");
 });
 
+test("collectEvent appends formatted qa_pair cards when deep_question returns summary.results", () => {
+  const s = newState();
+  collectEvent(s, {
+    type: "result",
+    metadata: {
+      response: "为你生成 1 道题：",
+      summary: {
+        results: [
+          {
+            qa_pair: {
+              question_id: "q_1",
+              question: "化简 |a-c|-|a+b|",
+              question_type: "written",
+              correct_answer: "b+c",
+              explanation: "先判断正负再去绝对值",
+            },
+          },
+        ],
+      },
+    },
+  });
+  assert.match(s.answer, /为你生成 1 道题：/);
+  assert.match(s.answer, /化简 \|a-c\|-\|a\+b\|/);
+  assert.match(s.answer, /参考答案\*\*：b\+c/);
+});
+
 test("collectEvent records errors, tool calls, title and session id", () => {
   const s = newState();
   collectEvent(s, { type: "error", content: "boom" });

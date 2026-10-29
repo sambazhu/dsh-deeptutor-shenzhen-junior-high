@@ -17,14 +17,17 @@ export function killTunnel(): void {
 }
 
 export async function apiProbe(timeoutMs = 1500): Promise<boolean> {
-  try {
-    const res = await fetch(`${API_BASE}/api/v1/system/status`, {
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    return res.ok;
-  } catch {
-    return false;
+  for (const path of ["/api/system/status", "/api/v1/system/status"]) {
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      if (res.ok) return true;
+    } catch {
+      /* try next probe path */
+    }
   }
+  return false;
 }
 
 /** Ensure the local API is reachable: probe → start SSH tunnel if needed (remote only) → wait. */

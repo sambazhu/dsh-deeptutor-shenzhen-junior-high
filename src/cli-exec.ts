@@ -6,7 +6,7 @@ import { execFile, spawn } from "node:child_process";
 import { rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { DEEPTUTOR_BIN, DEEPTUTOR_HOME, LOCAL_BIN, SSH_HOST } from "./config.ts";
+import { DEEPTUTOR_BIN, DEEPTUTOR_HOME, LOCAL_BIN, LOCAL_HOME, SSH_HOST } from "./config.ts";
 
 export interface CliResult {
   stdout: string;
@@ -73,12 +73,15 @@ function execFileResolved(
         env: opts.env ? { ...process.env, ...opts.env } : process.env,
         windowsHide: true,
         timeout: opts.timeoutMs,
+        maxBuffer: 64 * 1024 * 1024,
       },
       (err, stdout, stderr) => {
         const e: any = err;
+        const extraErr =
+          e && !stderr && typeof e.message === "string" ? e.message : "";
         resolve({
           stdout: stdout ?? "",
-          stderr: stderr ?? "",
+          stderr: (stderr ?? "") || extraErr,
           code: e ? (typeof e.code === "number" ? e.code : e.code === "ENOENT" ? 127 : 1) : 0,
           killed: e?.killed ?? false,
         });
@@ -149,7 +152,15 @@ export async function runCli(
   const res = await execFileResolved(
     LOCAL_BIN,
     args,
-    { signal: opts.signal, timeoutMs: opts.timeoutMs, env: { PYTHONUTF8: "1", PYTHONIOENCODING: "utf-8" } },
+    {
+      signal: opts.signal,
+      timeoutMs: opts.timeoutMs,
+      env: {
+        PYTHONUTF8: "1",
+        PYTHONIOENCODING: "utf-8",
+        DEEPTUTOR_HOME: LOCAL_HOME,
+      },
+    },
   );
   const out = res.stdout ?? "";
   const [stdout, stderr] = out.split("__DT_STDERR__");
