@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>数轴上两点间的距离与绝对值的几何意义 · 北师大七上</title>
+    <style>
+      :root {
+        --bg: #fafaf8;
+        --bg-alt: #f0efe9;
+        --card: #ffffff;
+        --fg: #1f2328;
+        --fg-muted: #6a737d;
+        --accent: #0a66c2;
+        --accent-soft: rgba(10, 102, 194, 0.1);
+        --border: #e2e2dc;
+        --code-bg: #f4f3ee;
+        --code-fg: #24292f;
+        --th-bg: #f0efe9;
+        --link: #0a66c2;
+        --answer-bg: #fffdf3;
+        --answer-border: #e8c84a;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.05);
+      }
+      [data-theme="dark"] {
+        --bg: #16181d;
+        --bg-alt: #1d2026;
+        --card: #1e2128;
+        --fg: #e6e6e6;
+        --fg-muted: #9aa0a6;
+        --accent: #7cb3ff;
+        --accent-soft: rgba(124, 179, 255, 0.12);
+        --border: #2e323a;
+        --code-bg: #121419;
+        --code-fg: #d7dae0;
+        --th-bg: #262a33;
+        --link: #7cb3ff;
+        --answer-bg: #23261d;
+        --answer-border: #8a7a2f;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+          "Microsoft YaHei", "Noto Sans CJK SC", Roboto, sans-serif;
+        line-height: 1.75;
+        font-size: 16px;
+      }
+      .page {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 32px 24px 80px;
+      }
+      /* header bar */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 10px 24px;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--border);
+      }
+      .topbar .doc-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--fg-muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .theme-toggle {
+        flex-shrink: 0;
+        appearance: none;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--fg);
+        border-radius: 999px;
+        padding: 5px 14px;
+        font-size: 13px;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          border-color 0.15s;
+      }
+      .theme-toggle:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      /* headings */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        line-height: 1.35;
+        margin: 1.6em 0 0.6em;
+        color: var(--fg);
+      }
+      h1 {
+        font-size: 1.9em;
+        padding-bottom: 0.4em;
+        border-bottom: 3px solid var(--accent);
+        margin-top: 0;
+      }
+      h1:not(:first-child) {
+        margin-top: 1.8em;
+      }
+      h2 {
+        font-size: 1.45em;
+        padding-bottom: 0.3em;
+        border-bottom: 1px solid var(--border);
+      }
+      h3 {
+        font-size: 1.2em;
+      }
+      h4 {
+        font-size: 1.05em;
+      }
+      /* toc */
+      .toc {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin: 24px 0;
+        box-shadow: var(--shadow);
+      }
+      .toc h2 {
+        border: none;
+        margin: 0 0 8px;
+        font-size: 1em;
+        color: var(--fg-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .toc ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .toc li {
+        margin: 2px 0;
+      }
+      .toc a {
+        color: var(--link);
+        text-decoration: none;
+      }
+      .toc a:hover {
+        text-decoration: underline;
+      }
+      .toc .toc-l3 {
+        padding-left: 1.4em;
+        font-size: 0.95em;
+      }
+      /* text */
+      p {
+        margin: 0.8em 0;
+      }
+      a {
+        color: var(--link);
+      }
+      strong {
+        font-weight: 650;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 2em 0;
+      }
+      blockquote {
+        margin: 1em 0;
+        padding: 0.4em 1.1em;
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        border-radius: 0 8px 8px 0;
+        color: var(--fg);
+      }
+      blockquote p {
+        margin: 0.5em 0;
+      }
+      /* code */
+      code {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.88em;
+        background: var(--code-bg);
+        color: var(--code-fg);
+        padding: 0.15em 0.4em;
+        border-radius: 5px;
+      }
+      pre.code-block {
+        position: relative;
+        background: var(--code-bg);
+        color: var(--code-fg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        overflow-x: auto;
+        line-height: 1.55;
+        margin: 1.1em 0;
+      }
+      pre.code-block code {
+        background: none;
+        padding: 0;
+        font-size: 0.9em;
+      }
+      .lang-badge {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        font-size: 11px;
+        color: var(--fg-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 1px 8px;
+        border-radius: 999px;
+      }
+      /* lists */
+      ul,
+      ol {
+        padding-left: 1.6em;
+        margin: 0.8em 0;
+      }
+      li {
+        margin: 0.3em 0;
+      }
+      li.task {
+        list-style: none;
+        margin-left: -1.2em;
+      }
+      li.task input {
+        accent-color: var(--accent);
+        margin-right: 0.5em;
+      }
+      li.task.done {
+        color: var(--fg-muted);
+        text-decoration: line-through;
+      }
+      /* tables */
+      .table-wrap {
+        overflow-x: auto;
+        margin: 1.1em 0;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.95em;
+      }
+      th,
+      td {
+        padding: 8px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        background: var(--th-bg);
+        font-weight: 650;
+        white-space: nowrap;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: var(--accent-soft);
+      }
+      /* quiz answers */
+      details.answer {
+        background: var(--answer-bg);
+        border: 1px solid var(--answer-border);
+        border-radius: 10px;
+        margin: 1.1em 0;
+        overflow: hidden;
+      }
+      details.answer summary {
+        cursor: pointer;
+        padding: 12px 16px;
+        font-weight: 600;
+        user-select: none;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      details.answer summary::-webkit-details-marker {
+        display: none;
+      }
+      details.answer summary::before {
+        content: "▶";
+        font-size: 0.8em;
+        color: var(--answer-border);
+        transition: transform 0.15s;
+      }
+      details.answer[open] summary::before {
+        transform: rotate(90deg);
+      }
+      details.answer summary .answer-tag {
+        font-size: 0.78em;
+        font-weight: 700;
+        color: var(--answer-border);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      details.answer .answer-body {
+        padding: 0 16px 14px;
+        border-top: 1px dashed var(--answer-border);
+      }
+      details.answer .answer-body p:first-child {
+        margin-top: 0.9em;
+      }
+      details.answer .answer-body > :last-child {
+        margin-bottom: 0.4em;
+      }
+      /* footer */
+
+      /* 互动区 */
+      .interactive { margin: 32px 0 8px; padding: 20px 20px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); }
+      .interactive h2 { margin-top: 0; }
+      .ia-controls { display: flex; flex-wrap: wrap; gap: 18px 32px; margin: 10px 0 4px; font-size: 15px; }
+      .ia-controls label { display: flex; align-items: center; gap: 10px; color: var(--fg); }
+      .ia-controls input[type=range] { width: 200px; accent-color: var(--accent); }
+      .ia-controls output { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--accent); min-width: 46px; display: inline-block; }
+      #ia-svg { width: 100%; height: auto; display: block; margin: 8px 0 2px; touch-action: none; cursor: default; }
+      #ia-svg circle.ia-pt { cursor: grab; }
+      #ia-svg circle.ia-pt:active { cursor: grabbing; }
+      .ia-readout { font-size: 15px; line-height: 2; color: var(--fg); }
+      .ia-readout .ia-eq { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--code-bg); padding: 2px 8px; border-radius: 6px; color: var(--code-fg); }
+      .ia-readout strong { color: var(--accent); }
+      .ia-tip { color: var(--fg-muted); font-size: 13.5px; line-height: 1.9; }
+      .footer {
+        margin-top: 3em;
+        padding-top: 1em;
+        border-top: 1px solid var(--border);
+        color: var(--fg-muted);
+        font-size: 12px;
+        text-align: center;
+      }
+      /* print */
+      @media print {
+        body {
+          background: #fff;
+        }
+        .topbar {
+          display: none;
+        }
+        .page {
+          max-width: none;
+          padding: 0;
+        }
+        details.answer {
+          border-color: #ccc;
+          background: #fff;
+        }
+        details.answer summary::before {
+          content: "▸ ";
+        }
+        details.answer:not([open]) {
+          border-style: dashed;
+        }
+        details.answer:not([open]) summary {
+          color: #333;
+        }
+        pre.code-block,
+        .table-wrap,
+        blockquote {
+          break-inside: avoid;
+        }
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <span class="doc-title">数轴上两点间的距离与绝对值的几何意义 · 北师大七上</span>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换主题">
+        🌓 主题
+      </button>
+    </div>
+    <div class="page">
+      <nav class="toc"><h2>目录</h2><ul><li class="toc-l1"><a href="#h-0-数轴上两点间的距离-与-绝对值的几何意义">数轴上两点间的距离 与 绝对值的几何意义</a></li><li class="toc-l2"><a href="#h-2-学习目标">学习目标</a></li><li class="toc-l2"><a href="#h-5-一-教材原话-先看课本怎么说">一、教材原话（先看课本怎么说）</a></li><li class="toc-l2"><a href="#h-11-二-推导链条-四段相扣">二、推导链条：四段相扣</a></li><li class="toc-l3"><a href="#h-12-第-1-段-x-是点-x-到原点-0-的距离">第 1 段：|x| 是点 x 到原点 0 的距离</a></li><li class="toc-l3"><a href="#h-15-第-2-段-把-原点-搬到-a-上-平移不改变距离">第 2 段：把「原点」搬到 a 上——平移不改变距离</a></li><li class="toc-l3"><a href="#h-23-第-3-段-验证-a-b-就是两点距离-分三种情形">第 3 段：验证 |a − b| 就是两点距离（分三种情形）</a></li><li class="toc-l3"><a href="#h-29-第-4-段-为什么-a-b-b-a">第 4 段：为什么 |a − b| = |b − a|</a></li><li class="toc-l3"><a href="#h-32-副产品-中点公式">副产品：中点公式</a></li><li class="toc-l2"><a href="#h-37-三-例题-由易到难">三、例题（由易到难）</a></li><li class="toc-l3"><a href="#h-38-例-1-基础-求距离-已知距离求坐标">例 1（基础）求距离 + 已知距离求坐标</a></li><li class="toc-l3"><a href="#h-49-例-2-中档-含绝对值化简与分类讨论">例 2（中档）含绝对值化简与分类讨论</a></li><li class="toc-l3"><a href="#h-64-例-3-稍难-数轴动点与距离">例 3（稍难）数轴动点与距离</a></li><li class="toc-l2"><a href="#h-81-四-四个高频易错点">四、四个高频易错点</a></li><li class="toc-l2"><a href="#h-84-五-自测题-答案可折叠-家长先遮住">五、自测题（孩子先做，家长先别展开）</a></li><li class="toc-l3"><a href="#h-85-t1-基础">T1（基础）</a></li><li class="toc-l3"><a href="#h-88-t2-中档">T2（中档）</a></li><li class="toc-l3"><a href="#h-91-参考答案-点开查看">参考答案（点开查看）</a></li><li class="toc-l2"><a href="#h-92-六-一句话总结">六、一句话总结</a></li><li class="toc-l2"><a href="#interactive">互动：拖动两点看距离</a></li></ul></nav> <h1 id="h-0-数轴上两点间的距离-与-绝对值的几何意义">数轴上两点间的距离 与 绝对值的几何意义</h1>
+<blockquote><p>教材依据：北师大版七年级上册 第二章《有理数及其运算》 对应页码：P29（数轴）、P34（绝对值）、P37（绝对值的几何意义）、P48 习题第 22 题 适用：深圳初一（七年级上）期中复习</p></blockquote>
+<h2 id="h-2-学习目标">学习目标</h2>
+<ol>
+<li>说清 <strong>|a − b| 就是数轴上 a、b 两点间的距离</strong>，并知道为什么不是 a − b；</li>
+<li>从「绝对值＝到原点的距离」推出「|x − a|＝x 到 a 的距离」；</li>
+<li>会用距离公式解决三类题：求距离、已知距离求点、数轴动点；</li>
+<li>记住四个高频易错点，考试不再丢冤枉分。</li>
+</ol>
+<hr>
+<h2 id="h-5-一-教材原话-先看课本怎么说">一、教材原话（先看课本怎么说）</h2>
+<ul>
+<li><strong>P29</strong>：规定了原点、单位长度、正方向的直线叫数轴；任何一个有理数都可以用数轴上的一个点表示。</li>
+</ul>
+<p>  关键一句：<strong>数轴上右边的数总比左边的数大。</strong></p>
+<ul>
+<li><strong>P34</strong>：绝对值表示这个数「有多大」，不计正负。5 与 −5 的绝对值都是 5。</li>
+<li><strong>P37</strong>：<em>「表示互为相反数的两个点，位于原点的两侧，且到原点的距离相等。一个数的绝对值就是这个数所对应的点到原点的距离。」</em></li>
+<li><strong>P48 习题 22</strong>：给 a、b 的值求两点距离，再要求「用 a、b 表示 A、B 两点间的距离」——答案就是 <strong>|a − b|</strong>。</li>
+</ul>
+<blockquote><p>结论先摆出来，但先别急着背： <strong>AB = |a − b| = |b − a|</strong>，而 <strong>|x − a| 就是「x 到 a 的距离」</strong>。 这两句话是同一个道理的两个说法。</p></blockquote>
+<hr>
+<h2 id="h-11-二-推导链条-四段相扣">二、推导链条：四段相扣</h2>
+<h3 id="h-12-第-1-段-x-是点-x-到原点-0-的距离">第 1 段：|x| 是点 x 到原点 0 的距离</h3>
+<p>|5| = 5（原点右边 5 格），|−5| = 5（原点左边 5 格），|0| = 0。</p>
+<p>距离恒 ≥ 0，这正好解释了<strong>绝对值不可能为负</strong>。</p>
+<h3 id="h-15-第-2-段-把-原点-搬到-a-上-平移不改变距离">第 2 段：把「原点」搬到 a 上——平移不改变距离</h3>
+<p>现在问「x 到 a 的距离」，原点不在 a 上，第 1 段不能直接用。</p>
+<p>办法：让整条数轴上每个点表示的数都减去 a（相当于整条数轴平移 a 个单位）。</p>
+<ul>
+<li>点 a 变成 a − a = 0，落到原点；</li>
+<li>点 x 变成 x − a。</li>
+</ul>
+<p>跨度不变，于是：</p>
+<blockquote><p><strong>x 到 a 的距离 = |(x − a) − 0| = |x − a|</strong></p></blockquote>
+<p>这就是 |x − a| 的全部理由。</p>
+<p>自检：取 a = 0 得 |x|，正好退回第 1 段；取 x = a 得 0，同一点到自身距离为 0。</p>
+<h3 id="h-23-第-3-段-验证-a-b-就是两点距离-分三种情形">第 3 段：验证 |a − b| 就是两点距离（分三种情形）</h3>
+<p>按 P29「右边的数减左边的数」，再验证它与 |a − b| 一致：</p>
+<div class="table-wrap"><table><thead><tr><th>情形</th><th>右减左（距离）</th><th>|a − b|</th><th>是否一致</th></tr></thead><tbody><tr><td>a &lt; b</td><td>b − a</td><td>−(a − b) = b − a</td><td>✓</td></tr><tr><td>a &gt; b</td><td>a − b</td><td>a − b</td><td>✓</td></tr><tr><td>a = b</td><td>0</td><td>0</td><td>✓</td></tr></tbody></table></div>
+<p>三种情形穷尽所有可能，所以对任意 a、b：</p>
+<blockquote><p><strong>AB = |a − b| = 右边的数 − 左边的数（≥ 0）</strong></p></blockquote>
+<p>这一步同时回答了「<strong>为什么必须加绝对值</strong>」：a − b 可能是负数，而距离不能是负数，绝对值的作用就是去掉符号、只留跨度。</p>
+<h3 id="h-29-第-4-段-为什么-a-b-b-a">第 4 段：为什么 |a − b| = |b − a|</h3>
+<ul>
+<li>代数上：b − a = −(a − b)，互为相反数的两数绝对值相等（P37）；</li>
+<li>几何上：A 到 B 的路程等于 B 到 A 的路程。</li>
+</ul>
+<blockquote><p>⚠️ 使用提醒：绝对值<strong>里面</strong>谁减谁随意（结果相同）；绝对值<strong>外面</strong>不能漏（漏了可能是负数）。</p></blockquote>
+<h3 id="h-32-副产品-中点公式">副产品：中点公式</h3>
+<p>由 |m − a| = |b − m| 得：</p>
+<blockquote><p><strong>m = (a + b) / 2</strong></p></blockquote>
+<p>这正是「数轴折叠使两点重合」题里折痕表示的数。</p>
+<hr>
+<h2 id="h-37-三-例题-由易到难">三、例题（由易到难）</h2>
+<h3 id="h-38-例-1-基础-求距离-已知距离求坐标">例 1（基础）求距离 + 已知距离求坐标</h3>
+<p>A 表示 −3，B 表示 5。 （1）求 AB；（2）P 表示 x，PA = 4，求 x。</p>
+<p><strong>思路</strong></p>
+<ul>
+<li>（1）套公式；</li>
+<li>（2）把「距离 4」翻译成 |x − (−3)| = 4，绝对值方程一般<strong>两解</strong>。</li>
+</ul>
+<p><strong>规范步骤</strong></p>
+<p>AB = |−3 − 5| = |−8| = <strong>8</strong></p>
+<p>|x + 3| = 4 ⟹ x + 3 = 4 或 x + 3 = −4 ⟹ <strong>x = 1 或 x = −7</strong></p>
+<p><strong>检验</strong>：|1 + 3| = 4 ✓；|−7 + 3| = 4 ✓</p>
+<p><strong>答案</strong>：AB = 8；x = 1 或 x = −7。</p>
+<p><strong>易错提醒</strong>：只写 x = 1。凡「到某点距离 = d」且 d &gt; 0，<strong>必两解</strong>；d = 0 才一解。写完画个小轴点一下，10 秒能查漏。</p>
+<hr>
+<h3 id="h-49-例-2-中档-含绝对值化简与分类讨论">例 2（中档）含绝对值化简与分类讨论</h3>
+<p>化简 |x − 2| + |x + 1|，分 x &lt; −1、−1 ≤ x ≤ 2、x &gt; 2 三种情形。</p>
+<p><strong>思路</strong></p>
+<p>两个绝对值，关键在去符号，规矩是「先判断里面正负」。分界处就是让每个绝对值 = 0 的 x（零点）：x = 2、x = −1，把数轴切成三段，每段内部符号固定。</p>
+<p><strong>分类不是老师规定的，是符号真的会变。</strong></p>
+<p><strong>规范步骤</strong></p>
+<p>① x &lt; −1 时：|x − 2| = 2 − x，|x + 1| = −(x + 1) = −x − 1，和为 <strong>1 − 2x</strong>。</p>
+<p>② −1 ≤ x ≤ 2 时：|x − 2| = 2 − x，|x + 1| = x + 1，和为 <strong>3</strong>。</p>
+<p>③ x &gt; 2 时：两者皆正，和为 (x − 2) + (x + 1) = <strong>2x − 1</strong>。</p>
+<p><strong>答案</strong></p>
+<ul>
+<li>x &lt; −1：1 − 2x</li>
+<li>−1 ≤ x ≤ 2：3</li>
+<li>x &gt; 2：2x − 1</li>
+</ul>
+<p><strong>几何看法</strong>：原式是「x 到 2 与到 −1 的距离之和」。x 落在线段上时两段拼成整条线段，和恒为 |2 − (−1)| = 3；跑出外侧则多走来回，和变大。所以<strong>最小值是 3，不是 0</strong>——这常是采分点。</p>
+<p><strong>易错提醒</strong></p>
+<p>① 去绝对值不加括号（写成 x + 1，实际 x + 1 &lt; 0，负数的绝对值是它的相反数，须整体加括号变号）； ② 端点漏掉（写成 −1 &lt; x &lt; 2，丢了 x = −1、2，应让端点归中段、三段首尾相接）； ③ 只会算不会说最小值。</p>
+<hr>
+<h3 id="h-64-例-3-稍难-数轴动点与距离">例 3（稍难）数轴动点与距离</h3>
+<p>A = −6，B = 10。P 从 A 向右每秒 2 个单位，Q 从 B 向左每秒 1 个单位，时间 t &gt; 0。</p>
+<p>（1）用 t 表示 P、Q；（2）求 PQ；（3）PQ = 4 时求 t；（4）何时 PQ 最小。</p>
+<p><strong>思路（动点三句话）</strong></p>
+<p>① 写坐标（起点 + 有向路程）； ② 写距离（一律写成差的绝对值，别急着判左右）； ③ 令绝对值里面 = 0 找<strong>相遇</strong>时刻作分界点。</p>
+<p><strong>规范步骤</strong></p>
+<p>（1）P = −6 + 2t，Q = 10 − t。</p>
+<p>（2）PQ = |P − Q| = |(−6 + 2t) − (10 − t)| = |3t − 16|。</p>
+<p>（3）|3t − 16| = 4 ⟹ 3t − 16 = 4 或 3t − 16 = −4 ⟹ <strong>t = 20/3 或 t = 4</strong>。</p>
+<p>两解含义不同：t = 4 时 P = 2、Q = 6（P 未追上）；t = 20/3 时 P = 22/3、Q = 10/3（P 已超过）。</p>
+<p>检验：|22/3 − 10/3| = 4 ✓</p>
+<p>（4）|3t − 16| ≥ 0，取 0 当 t = <strong>16/3</strong>，两点相遇于 14/3（P：−6 + 2 × 16/3 = 14/3；Q：10 − 16/3 = 14/3，一致 ✓）。</p>
+<p><strong>答案</strong>：（1）P = −6 + 2t，Q = 10 − t；（2）PQ = |3t − 16|；（3）t = 4 或 20/3；（4）t = 16/3 时 PQ 最小，最小值 0。</p>
+<p><strong>易错提醒</strong></p>
+<p>① 漏绝对值写成 3t − 16，t &gt; 16/3 后算出负距离，第（3）问丢解； ② 以为只追上一次（P 更快，会两次「相距 4」）； ③ 用「右减左」却忘了左右会换。</p>
+<p><strong>与错题本的呼应</strong>：<code>MATH-20261016-20</code> 中 AB = |3t − 5|、分界 t = 5/3、分段讨论，与本题完全同构；那道题的「折叠重合」用的就是中点公式 (a + c) / 2。</p>
+<hr>
+<h2 id="h-81-四-四个高频易错点">四、四个高频易错点</h2>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>错法</th><th>为什么错</th><th>怎么避免</th></tr></thead><tbody><tr><td>1</td><td>直接写 a − b 当距离</td><td>a − b 可能为负，而距离不能为负</td><td>固定写 |a − b|；或先比大小用「右减左」，两种情况结果一致</td></tr><tr><td>2</td><td>去绝对值不加括号变号（x &lt; −1 时把 |x + 1| 写成 x + 1）</td><td>|x + 1| = −x − 1，少了这个括号，符号会整体相反</td><td>去符号前先判一次正负，负的<strong>整体加括号</strong>再取相反数</td></tr><tr><td>3</td><td>|x − a| = d 只写 x = a + d</td><td>到 a 距离 d 的点在左右各一个，漏掉 a − d</td><td>见「距离 = d &gt; 0」立刻提醒自己两解，画轴标点复核</td></tr><tr><td>4</td><td>动点题不设分界点，把 |3t − 16| 当成 3t − 16</td><td>越过相遇时刻，绝对值里面变号，式子性质整体改变</td><td>先令里面 = 0 求相遇时刻，再分两段讨论并写明「当…时」</td></tr></tbody></table></div>
+<hr>
+<h2 id="h-84-五-自测题-答案可折叠-家长先遮住">五、自测题（孩子先做，家长先别展开）</h2>
+<h3 id="h-85-t1-基础">T1（基础）</h3>
+<p>数轴上 A 表示 −2，B 表示 6。</p>
+<ol>
+<li>求 AB；</li>
+<li>点 P 表示 x，且 PA = 3，求 x；</li>
+<li>点 Q 表示 y，且 QA = QB，求 y。</li>
+</ol>
+<h3 id="h-88-t2-中档">T2（中档）</h3>
+<p>化简 |x − 3| + |x + 2|。</p>
+<ol>
+<li>写出 −2 ≤ x ≤ 3 时的结果，并说明这个结果为什么是常数；</li>
+<li>求原式的最小值；</li>
+<li>若原式 = 7，求 x。</li>
+</ol>
+<details class="answer"><summary><span class="answer-tag">答案</span>参考答案（点开查看）</summary>
+<div class="answer-body">
+
+<p><strong>T1</strong></p>
+
+<p>1. AB = |−2 − 6| = <strong>8</strong>。</p>
+<p>2. |x + 2| = 3 ⟹ <strong>x = 1 或 x = −5</strong>。（提示：两解，左 3 格与右 3 格）</p>
+<p>3. y 到 −2 与到 6 距离相等 → y 是中点 = (−2 + 6) / 2 = <strong>2</strong>。</p>
+
+<p><strong>T2</strong></p>
+
+<p>1. 此时 x − 3 ≤ 0、x + 2 ≥ 0，原式 = (3 − x) + (x + 2) = <strong>5</strong>。因为 x 落在线段上，两段拼成整条线段，长度恒为 |3 − (−2)| = 5。</p>
+<p>2. 最小值 <strong>5</strong>（在 −2 ≤ x ≤ 3 上处处取到）。</p>
+<p>3. <strong>x = 4 或 x = −3</strong>。（提示：7 &gt; 5，点在线段外侧各一处；验算 |4 − 3| + |4 + 2| = 1 + 6 = 7 ✓，|−3 − 3| + |−3 + 2| = 6 + 1 = 7 ✓）</p>
+
+<p>---</p>
+
+</div></details>
+<h2 id="h-92-六-一句话总结">六、一句话总结</h2>
+<blockquote><p><strong>数轴上两点距离 = 坐标差的绝对值；绝对值 = 到定点的距离。</strong> 遇到「距离」先写绝对值，遇到绝对值先想「到哪一点的距离」，遇到多解先问「是不是有两个点」。</p></blockquote>
+<hr>
+<p><em>本讲义由 DeepTutor deep_solve（session <code>unified_1793242435364_61d9940b</code>）结合北师大版七上教材与 <code>sz-g7-math-bsd</code> 知识库生成，例题与自测均已逐步验算。</em></p>
+
+      <section class="interactive" id="interactive">
+        <h2 id="h-interactive">互动：拖动 A、B，看 |a − b| 怎么变</h2>
+        <p>按住数轴上的圆点拖动，或直接拖下面的滑块。<strong>代数式算出来的数</strong>和<strong>数轴上的线段长度</strong>永远相等——这就是「距离 = 绝对值」最直白的样子。</p>
+        <div class="ia-controls">
+          <label>A = <input id="ia-a" type="range" min="-10" max="10" step="0.5" value="-3"><output id="ia-av">−3</output></label>
+          <label>B = <input id="ia-b" type="range" min="-10" max="10" step="0.5" value="5"><output id="ia-bv">5</output></label>
+        </div>
+        <svg id="ia-svg" viewBox="0 0 720 150" role="img" aria-label="可拖动两个点的数轴"></svg>
+        <div class="ia-readout">
+          <div>|a − b| = <span class="ia-eq" id="ia-eq">|−3 − (5)| = 8</span> → 距离 <strong id="ia-dist">8</strong> 个单位</div>
+          <div class="ia-tip">中点公式：<span id="ia-mid">(−3 + 5) / 2 = 1</span>；<span id="ia-cmp">右边减左边：5 − (−3) = 8。</span></div>
+        </div>
+      </section>
+      <div class="footer">
+        Generated 2026-10-29 · html-doc skill ·
+        <a
+          href="#"
+          onclick="
+            window.print();
+            return false;
+          "
+          >打印 / 导出 PDF</a
+        >
+      </div>
+    </div>
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var saved = null;
+        try {
+          saved = localStorage.getItem("html-doc-theme");
+        } catch (e) {}
+        if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
+        var btn = document.getElementById("themeToggle");
+        btn.textContent = root.getAttribute("data-theme") === "dark" ? "☀️ 浅色" : "🌓 深色";
+        btn.addEventListener("click", function () {
+          var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+          root.setAttribute("data-theme", next);
+          btn.textContent = next === "dark" ? "☀️ 浅色" : "🌓 深色";
+          try {
+            localStorage.setItem("html-doc-theme", next);
+          } catch (e) {}
+        });
+      })();
+    </script>
+
+  <script>
+  (function () {
+    var SVGNS = 'http://www.w3.org/2000/svg';
+    var svg = document.getElementById('ia-svg');
+    var ra = document.getElementById('ia-a'), rb = document.getElementById('ia-b');
+    var oa = document.getElementById('ia-av'), ob = document.getElementById('ia-bv');
+    var eq = document.getElementById('ia-eq'), dist = document.getElementById('ia-dist'), mid = document.getElementById('ia-mid'), cmp = document.getElementById('ia-cmp');
+    var W = 720, H = 150, PAD = 52, LO = -10, HI = 10, AY = 78;
+    var A = parseFloat(ra.value), B = parseFloat(rb.value), drag = null;
+
+    function xOf(v) { return PAD + (v - LO) * (W - 2 * PAD) / (HI - LO); }
+    function vOf(x) { return LO + (x - PAD) * (HI - LO) / (W - 2 * PAD); }
+    function fmt(v) { return (v < 0 ? '\u2212' : '') + Math.abs(v).toString().replace(/\.0$/, ''); }
+    function el(name, attrs) { var n = document.createElementNS(SVGNS, name); for (var k in attrs) { var v = attrs[k]; if ((k === 'stroke' || k === 'fill') && typeof v === 'string' && v.indexOf('var(') === 0) { n.style[k] = v; } else { n.setAttribute(k, v); } } return n; }
+
+    function draw() {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      var xa = xOf(A), xb = xOf(B), lo = Math.min(xa, xb), hi = Math.max(xa, xb);
+
+      // 数轴
+      svg.appendChild(el('line', {x1: PAD - 22, y1: AY, x2: W - PAD + 22, y2: AY, stroke: 'var(--fg-muted)', 'stroke-width': 1.6}));
+      svg.appendChild(el('path', {d: 'M' + (W - PAD + 22) + ',' + AY + ' l-9,-4.5 l0,9 z', fill: 'var(--fg-muted)'}));
+      for (var v = LO; v <= HI; v++) {
+        var x = xOf(v), big = (v % 5 === 0);
+        svg.appendChild(el('line', {x1: x, y1: AY - (big ? 7 : 4), x2: x, y2: AY + (big ? 7 : 4), stroke: 'var(--fg-muted)', 'stroke-width': big ? 1.4 : 0.9, opacity: big ? 1 : 0.6}));
+        if (big) {
+          var t = el('text', {x: x, y: AY + 26, 'text-anchor': 'middle', 'font-size': 12, fill: 'var(--fg-muted)'});
+          t.textContent = fmt(v); svg.appendChild(t);
+        }
+      }
+      // 0 点强调
+
+      // 距离括号
+      var by = AY - 30;
+      svg.appendChild(el('line', {x1: lo, y1: by, x2: hi, y2: by, stroke: 'var(--accent)', 'stroke-width': 2.5, 'stroke-linecap': 'round'}));
+      svg.appendChild(el('line', {x1: lo, y1: by - 6, x2: lo, y2: by + 6, stroke: 'var(--accent)', 'stroke-width': 2.5}));
+      svg.appendChild(el('line', {x1: hi, y1: by - 6, x2: hi, y2: by + 6, stroke: 'var(--accent)', 'stroke-width': 2.5}));
+      var lab = el('text', {x: (lo + hi) / 2, y: by - 12, 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 700, fill: 'var(--accent)'});
+      lab.textContent = '|a \u2212 b| = ' + fmt(Math.abs(A - B)); svg.appendChild(lab);
+
+      function point(v, x, color, name) {
+        svg.appendChild(el('line', {x1: x, y1: AY, x2: x, y2: AY - 12, stroke: color, 'stroke-width': 2, opacity: 0.5}));
+        var c = el('circle', {cx: x, cy: AY, r: 9, fill: color, 'fill-opacity': 0.18, stroke: color, 'stroke-width': 2.5, class: 'ia-pt'});
+        c.setAttribute('data-key', name); svg.appendChild(c);
+        var t = el('text', {x: x, y: AY + 44, 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 700, fill: color});
+        t.textContent = name + ' = ' + fmt(v); svg.appendChild(t);
+      }
+      point(A, xa, 'var(--accent)', 'A');
+      point(B, xb, '#2f9e5f', 'B');
+
+      // 中点
+      var m = (A + B) / 2, xm = xOf(m);
+      svg.appendChild(el('circle', {cx: xm, cy: AY, r: 4, fill: 'var(--fg)', opacity: 0.75}));
+      var tm = el('text', {x: xm, y: AY + 60, 'text-anchor': 'middle', 'font-size': 11.5, fill: 'var(--fg-muted)'});
+      tm.textContent = '中点 ' + fmt(m); svg.appendChild(tm);
+
+      // 读数
+      var d = Math.abs(A - B);
+      eq.textContent = '|' + fmt(A) + ' \u2212 (' + fmt(B) + ')| = ' + fmt(d);
+      dist.textContent = fmt(d);
+      mid.textContent = '(' + fmt(A) + ' + ' + fmt(B) + ') / 2 = ' + fmt(m);
+      if (A === B) {
+        cmp.textContent = '两点重合，距离为 0。';
+      } else if (A < B) {
+        cmp.textContent = '右边减左边：' + fmt(B) + ' \u2212 (' + fmt(A) + ') = ' + fmt(d) + '；而 a \u2212 b = ' + fmt(A - B) + ' 是负数，所以必须取绝对值。';
+      } else {
+        cmp.textContent = '右边减左边：' + fmt(A) + ' \u2212 (' + fmt(B) + ') = ' + fmt(d) + '；而 a \u2212 b = ' + fmt(A - B) + ' 是正数，恰好等于距离。';
+      }
+      ra.value = A; rb.value = B; oa.textContent = fmt(A); ob.textContent = fmt(B);
+    }
+
+    function fromEvent(ev) {
+      var r = svg.getBoundingClientRect();
+      var x = (ev.clientX - r.left) * (W / r.width);
+      var v = Math.round(vOf(x) * 2) / 2;
+      return Math.max(LO, Math.min(HI, v));
+    }
+    svg.addEventListener('pointerdown', function (ev) {
+      var k = ev.target.getAttribute && ev.target.getAttribute('data-key');
+      if (k === 'A' || k === 'B') { drag = k; svg.setPointerCapture(ev.pointerId); ev.preventDefault(); }
+    });
+    svg.addEventListener('pointermove', function (ev) {
+      if (!drag) return;
+      var v = fromEvent(ev);
+      if (drag === 'A') A = v; else B = v;
+      draw();
+    });
+    svg.addEventListener('pointerup', function () { drag = null; });
+    svg.addEventListener('pointercancel', function () { drag = null; });
+    ra.addEventListener('input', function () { A = parseFloat(ra.value); draw(); });
+    rb.addEventListener('input', function () { B = parseFloat(rb.value); draw(); });
+    draw();
+  })();
+  </script>
+  </body>
+</html>

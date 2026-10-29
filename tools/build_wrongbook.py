@@ -1,7 +1,7 @@
 """根据各学科错题集/题库.json生成两份可打印Word：
 1) 空白练习版；2) 参考答案与讲解版。"""
 from __future__ import annotations
-import argparse, datetime as dt, json
+import argparse, datetime as dt, json, re
 from pathlib import Path
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
@@ -76,12 +76,33 @@ def add_meta(doc, q, n):
         p = doc.add_paragraph(); p.paragraph_format.space_after = Pt(8)
         add_run(p, "  |  ".join(bits), size=8.5, color=(112,112,112))
 
+def add_runs_with_bold(p, text, name=FONT, size=11, base_bold=False, color=None):
+    parts = re.split(r"(\*\*[^*]+\*\*)", str(text))
+    for part in parts:
+        if not part:
+            continue
+        if part.startswith("**") and part.endswith("**") and len(part) > 4:
+            add_run(p, part[2:-2], name=name, size=size, bold=True, color=color)
+        else:
+            add_run(p, part, name=name, size=size, bold=base_bold, color=color)
+
 def add_text(doc, text, size=11, indent=False):
-    for line in str(text or "").split("\n"):
+    for raw_line in str(text or "").split("\n"):
+        stripped = raw_line.strip()
+        if not stripped:
+            continue
+        m_heading = re.match(r"^(#{1,4})\s+(.*)$", stripped)
+        if m_heading:
+            p = doc.add_paragraph()
+            p.paragraph_format.space_before = Pt(5)
+            p.paragraph_format.space_after = Pt(2)
+            add_runs_with_bold(p, m_heading.group(2).strip(), name=HEI, size=size, base_bold=True)
+            continue
         p = doc.add_paragraph()
         p.paragraph_format.space_after = Pt(3)
-        if indent: p.paragraph_format.first_line_indent = Cm(0.74)
-        add_run(p, line if line.strip() else " ", size=size)
+        if indent:
+            p.paragraph_format.first_line_indent = Cm(0.74)
+        add_runs_with_bold(p, raw_line, name=FONT, size=size, base_bold=False)
 
 def add_image(doc, base, rel, max_cm=15):
     if not rel: return
