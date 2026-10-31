@@ -116,7 +116,16 @@ def run_dt_kb(args: list[str]) -> subprocess.CompletedProcess[str]:
 
 def kb_exists(name: str) -> bool:
     kb_dir = DEEPTUTOR_HOME / "data" / "knowledge_bases" / name
-    return kb_dir.exists()
+    cfg_file = DEEPTUTOR_HOME / "data" / "knowledge_bases" / "kb_config.json"
+    if kb_dir.exists():
+        return True
+    if cfg_file.exists():
+        try:
+            cfg = json.loads(cfg_file.read_text(encoding="utf-8"))
+            return name in (cfg.get("knowledge_bases") or {})
+        except Exception:
+            pass
+    return False
 
 
 def rebuild_kb_from_dir(kb_name: str, docs_dir: Path) -> None:
@@ -126,7 +135,7 @@ def rebuild_kb_from_dir(kb_name: str, docs_dir: Path) -> None:
         return
 
     if kb_exists(kb_name):
-        run_dt_kb(["delete", kb_name, "--yes"])
+        run_dt_kb(["delete", kb_name, "--force"])
         kb_dir = DEEPTUTOR_HOME / "data" / "knowledge_bases" / kb_name
         if kb_dir.exists():
             shutil.rmtree(kb_dir)
