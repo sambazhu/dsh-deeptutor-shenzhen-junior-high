@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>数轴动点 · 押题 2 道（北京期中版）</title>
+    <style>
+      :root {
+        --bg: #fafaf8;
+        --bg-alt: #f0efe9;
+        --card: #ffffff;
+        --fg: #1f2328;
+        --fg-muted: #6a737d;
+        --accent: #0a66c2;
+        --accent-soft: rgba(10, 102, 194, 0.1);
+        --border: #e2e2dc;
+        --code-bg: #f4f3ee;
+        --code-fg: #24292f;
+        --th-bg: #f0efe9;
+        --link: #0a66c2;
+        --answer-bg: #fffdf3;
+        --answer-border: #e8c84a;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.05);
+      }
+      [data-theme="dark"] {
+        --bg: #16181d;
+        --bg-alt: #1d2026;
+        --card: #1e2128;
+        --fg: #e6e6e6;
+        --fg-muted: #9aa0a6;
+        --accent: #7cb3ff;
+        --accent-soft: rgba(124, 179, 255, 0.12);
+        --border: #2e323a;
+        --code-bg: #121419;
+        --code-fg: #d7dae0;
+        --th-bg: #262a33;
+        --link: #7cb3ff;
+        --answer-bg: #23261d;
+        --answer-border: #8a7a2f;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+          "Microsoft YaHei", "Noto Sans CJK SC", Roboto, sans-serif;
+        line-height: 1.75;
+        font-size: 16px;
+      }
+      .page {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 32px 24px 80px;
+      }
+      /* header bar */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 10px 24px;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--border);
+      }
+      .topbar .doc-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--fg-muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .theme-toggle {
+        flex-shrink: 0;
+        appearance: none;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--fg);
+        border-radius: 999px;
+        padding: 5px 14px;
+        font-size: 13px;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          border-color 0.15s;
+      }
+      .theme-toggle:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      /* headings */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        line-height: 1.35;
+        margin: 1.6em 0 0.6em;
+        color: var(--fg);
+      }
+      h1 {
+        font-size: 1.9em;
+        padding-bottom: 0.4em;
+        border-bottom: 3px solid var(--accent);
+        margin-top: 0;
+      }
+      h1:not(:first-child) {
+        margin-top: 1.8em;
+      }
+      h2 {
+        font-size: 1.45em;
+        padding-bottom: 0.3em;
+        border-bottom: 1px solid var(--border);
+      }
+      h3 {
+        font-size: 1.2em;
+      }
+      h4 {
+        font-size: 1.05em;
+      }
+      /* toc */
+      .toc {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin: 24px 0;
+        box-shadow: var(--shadow);
+      }
+      .toc h2 {
+        border: none;
+        margin: 0 0 8px;
+        font-size: 1em;
+        color: var(--fg-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .toc ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .toc li {
+        margin: 2px 0;
+      }
+      .toc a {
+        color: var(--link);
+        text-decoration: none;
+      }
+      .toc a:hover {
+        text-decoration: underline;
+      }
+      .toc .toc-l3 {
+        padding-left: 1.4em;
+        font-size: 0.95em;
+      }
+      /* text */
+      p {
+        margin: 0.8em 0;
+      }
+      a {
+        color: var(--link);
+      }
+      strong {
+        font-weight: 650;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 2em 0;
+      }
+      blockquote {
+        margin: 1em 0;
+        padding: 0.4em 1.1em;
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        border-radius: 0 8px 8px 0;
+        color: var(--fg);
+      }
+      blockquote p {
+        margin: 0.5em 0;
+      }
+      /* code */
+      code {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.88em;
+        background: var(--code-bg);
+        color: var(--code-fg);
+        padding: 0.15em 0.4em;
+        border-radius: 5px;
+      }
+      pre.code-block {
+        position: relative;
+        background: var(--code-bg);
+        color: var(--code-fg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        overflow-x: auto;
+        line-height: 1.55;
+        margin: 1.1em 0;
+      }
+      pre.code-block code {
+        background: none;
+        padding: 0;
+        font-size: 0.9em;
+      }
+      .lang-badge {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        font-size: 11px;
+        color: var(--fg-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 1px 8px;
+        border-radius: 999px;
+      }
+      /* lists */
+      ul,
+      ol {
+        padding-left: 1.6em;
+        margin: 0.8em 0;
+      }
+      li {
+        margin: 0.3em 0;
+      }
+      li.task {
+        list-style: none;
+        margin-left: -1.2em;
+      }
+      li.task input {
+        accent-color: var(--accent);
+        margin-right: 0.5em;
+      }
+      li.task.done {
+        color: var(--fg-muted);
+        text-decoration: line-through;
+      }
+      /* tables */
+      .table-wrap {
+        overflow-x: auto;
+        margin: 1.1em 0;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.95em;
+      }
+      th,
+      td {
+        padding: 8px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        background: var(--th-bg);
+        font-weight: 650;
+        white-space: nowrap;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: var(--accent-soft);
+      }
+      /* quiz answers */
+      details.answer {
+        background: var(--answer-bg);
+        border: 1px solid var(--answer-border);
+        border-radius: 10px;
+        margin: 1.1em 0;
+        overflow: hidden;
+      }
+      details.answer summary {
+        cursor: pointer;
+        padding: 12px 16px;
+        font-weight: 600;
+        user-select: none;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      details.answer summary::-webkit-details-marker {
+        display: none;
+      }
+      details.answer summary::before {
+        content: "▶";
+        font-size: 0.8em;
+        color: var(--answer-border);
+        transition: transform 0.15s;
+      }
+      details.answer[open] summary::before {
+        transform: rotate(90deg);
+      }
+      details.answer summary .answer-tag {
+        font-size: 0.78em;
+        font-weight: 700;
+        color: var(--answer-border);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      details.answer .answer-body {
+        padding: 0 16px 14px;
+        border-top: 1px dashed var(--answer-border);
+      }
+      details.answer .answer-body p:first-child {
+        margin-top: 0.9em;
+      }
+      details.answer .answer-body > :last-child {
+        margin-bottom: 0.4em;
+      }
+      /* footer */
+      .footer {
+        margin-top: 3em;
+        padding-top: 1em;
+        border-top: 1px solid var(--border);
+        color: var(--fg-muted);
+        font-size: 12px;
+        text-align: center;
+      }
+      /* print */
+      @media print {
+        body {
+          background: #fff;
+        }
+        .topbar {
+          display: none;
+        }
+        .page {
+          max-width: none;
+          padding: 0;
+        }
+        details.answer {
+          border-color: #ccc;
+          background: #fff;
+        }
+        details.answer summary::before {
+          content: "▸ ";
+        }
+        details.answer:not([open]) {
+          border-style: dashed;
+        }
+        details.answer:not([open]) summary {
+          color: #333;
+        }
+        pre.code-block,
+        .table-wrap,
+        blockquote {
+          break-inside: avoid;
+        }
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <span class="doc-title">数轴动点 · 押题 2 道（北京期中版）</span>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换主题">
+        🌓 主题
+      </button>
+    </div>
+    <div class="page">
+      <nav class="toc"><h2>目录</h2><ul><li class="toc-l1"><a href="#h-0-数轴动点-押题-2-道-北京期中口径">数轴动点 · 押题 2 道（北京期中口径）</a></li><li class="toc-l2"><a href="#h-2-为什么这样出-北京卷的四个口味">为什么这样出（北京卷的四个口味）</a></li><li class="toc-l2"><a href="#h-5-一-押题-单动点往返-8-分">一、押题①　单动点往返（8 分）</a></li><li class="toc-l2"><a href="#h-30-二-押题-新定义-2倍点-10-分">二、押题②　新定义&quot;2倍点&quot;（10 分）</a></li><li class="toc-l2"><a href="#h-63-三-通用四步法-考场可直接套">三、通用四步法（考场可直接套）</a></li><li class="toc-l2"><a href="#h-65-四-答案速查">四、答案速查</a></li><li class="toc-l2"><a href="#h-67-五-关于-中电初中-这套卷">五、关于&quot;中电初中&quot;这套卷</a></li></ul></nav> <h1 id="h-0-数轴动点-押题-2-道-北京期中口径">数轴动点 · 押题 2 道（北京期中口径）</h1>
+<blockquote><ul>
+<li><strong>适用</strong>：北京地区七年级上学期期中（人教版 / 北京版，第一章&quot;有理数&quot;为主，可带一点整式）</li>
+<li><strong>位置与分值</strong>：解答题压轴（一般 26—28 题），8—10 分，3—4 小问台阶式上升</li>
+<li><strong>建议用时</strong>：押题① 8 分钟，押题② 12 分钟</li>
+<li><strong>整理日期</strong>：2026-10-29</li>
+</ul></blockquote>
+<h2 id="h-2-为什么这样出-北京卷的四个口味">为什么这样出（北京卷的四个口味）</h2>
+<ol>
+<li><strong>单动点往返（折返）</strong>：给一条线段，点走到端点原速返回，考&quot;同一个位置会出现两次&quot;，几乎年年有。</li>
+<li><strong>绝对值方程多解</strong>：<code>|x − a| = k</code> 天然两解；再配合&quot;点在左边 / 之间 / 右边&quot;的分类讨论。</li>
+<li><strong>定义新概念</strong>：题干先给一个新名词（&quot;2倍点&quot;&quot;友好点&quot;），再用它考迁移能力。</li>
+<li><strong>&quot;是否存在……请说明理由&quot;</strong>：最后半问要判断 + 说理，不只要算出一个数。</li>
+</ol>
+<p>和深圳卷的区别：深圳爱&quot;折叠 + 定值计算&quot;，北京爱&quot;往返 + 新定义 + 说理&quot;。这次两题按北京口味重排。</p>
+<h2 id="h-5-一-押题-单动点往返-8-分">一、押题①　单动点往返（8 分）</h2>
+<p><strong>题目</strong></p>
+<p>如图，数轴上点 A 表示的数为 −10，点 B 表示的数为 8。</p>
+<figure class="fig"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 196" width="100%" style="max-width:800px;display:block;margin:0 auto"><defs><marker id="ah_15803d" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 z" fill="#15803d"/></marker><marker id="ah_b45309" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 z" fill="#b45309"/></marker><marker id="ah_1d4ed8" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 z" fill="#1d4ed8"/></marker></defs><rect width="800" height="196" fill="#ffffff"/><g font-family="-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif"><line x1="40.0" y1="105" x2="754.0" y2="105" stroke="#334155" stroke-width="1.6"/>
+<path d="M754.0 105 l-9 -4.5 v9 z" fill="#334155"/>
+<line x1="40.0" y1="99" x2="40.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="40.0" y="126" font-size="11" fill="#334155" text-anchor="middle">-12</text>
+<line x1="72.0" y1="102" x2="72.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="104.0" y1="99" x2="104.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="104.0" y="126" font-size="11" fill="#334155" text-anchor="middle">-10</text>
+<line x1="136.0" y1="102" x2="136.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="168.0" y1="99" x2="168.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="168.0" y="126" font-size="11" fill="#334155" text-anchor="middle">-8</text>
+<line x1="200.0" y1="102" x2="200.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="232.0" y1="99" x2="232.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="232.0" y="126" font-size="11" fill="#334155" text-anchor="middle">-6</text>
+<line x1="264.0" y1="102" x2="264.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="296.0" y1="99" x2="296.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="296.0" y="126" font-size="11" fill="#334155" text-anchor="middle">-4</text>
+<line x1="328.0" y1="102" x2="328.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="360.0" y1="99" x2="360.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="360.0" y="126" font-size="11" fill="#334155" text-anchor="middle">-2</text>
+<line x1="392.0" y1="102" x2="392.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="424.0" y1="99" x2="424.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="424.0" y="126" font-size="11" fill="#334155" text-anchor="middle">0</text>
+<line x1="456.0" y1="102" x2="456.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="488.0" y1="99" x2="488.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="488.0" y="126" font-size="11" fill="#334155" text-anchor="middle">2</text>
+<line x1="520.0" y1="102" x2="520.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="552.0" y1="99" x2="552.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="552.0" y="126" font-size="11" fill="#334155" text-anchor="middle">4</text>
+<line x1="584.0" y1="102" x2="584.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="616.0" y1="99" x2="616.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="616.0" y="126" font-size="11" fill="#334155" text-anchor="middle">6</text>
+<line x1="648.0" y1="102" x2="648.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="680.0" y1="99" x2="680.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="680.0" y="126" font-size="11" fill="#334155" text-anchor="middle">8</text>
+<line x1="712.0" y1="102" x2="712.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="744.0" y1="99" x2="744.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="744.0" y="126" font-size="11" fill="#334155" text-anchor="middle">10</text>
+<circle cx="104.0" cy="105" r="5" fill="#1d4ed8"/><text x="104.0" y="91" font-size="14" font-weight="600" fill="#1d4ed8" text-anchor="middle">A（−10）</text>
+<circle cx="680.0" cy="105" r="5" fill="#1d4ed8"/><text x="680.0" y="91" font-size="14" font-weight="600" fill="#1d4ed8" text-anchor="middle">B（8）</text>
+<line x1="114.0" y1="45" x2="670.0" y2="45" stroke="#15803d" stroke-width="1.8" marker-end="url(#ah_15803d)"/><text x="392.0" y="36" font-size="12.5" fill="#15803d" text-anchor="middle">去程　3 单位/秒</text>
+<line x1="670.0" y1="160" x2="114.0" y2="160" stroke="#b45309" stroke-width="1.8" marker-end="url(#ah_b45309)"/><text x="392.0" y="183" font-size="12.5" fill="#b45309" text-anchor="middle">到达 B 立即返回　3 单位/秒（回程）</text></g></svg></figure>
+<p>动点 P 从点 A 出发，以每秒 3 个单位长度的速度沿数轴向右运动，到达点 B 后立即以相同的速度返回，到达点 A 时停止运动。设运动时间为 t 秒。</p>
+<p>(1) 求线段 AB 的长，并求点 P 到达点 B 时的 t 值。</p>
+<p>(2) 当 t = 4 时，求点 P 表示的数以及 PB 的长。</p>
+<p>(3) ① 当点 P 到点 A 的距离与到点 B 的距离相等时，求 t 的值；</p>
+<p>② 在点 P 运动的整个过程中，PA + PB 的值是否发生变化？若不变，求出这个值；若变化，请说明理由。</p>
+<p><strong>思路与步骤</strong></p>
+<p>第(1)问　距离公式 + 时间 = 路程 ÷ 速度。</p>
+<p>AB = |8 − (−10)| = 18；t = 18 ÷ 3 = 6（秒）。</p>
+<p>第(2)问　先定位，再算距离。</p>
+<p>因为 4 &lt; 6，P 还在去程：P = −10 + 3 × 4 = 2；PB = |8 − 2| = 6。</p>
+<p>第(3)①问　&quot;到两点距离相等&quot;就是中点，但要想到 P 走了两遍。</p>
+<p>中点表示的数为 (−10 + 8) ÷ 2 = −1。</p>
+<ul>
+<li>去程：−10 + 3t = −1，得 t = 3；</li>
+<li>回程：P = 8 − 3(t − 6) = 26 − 3t，令 26 − 3t = −1，得 t = 9。</li>
+</ul>
+<p>所以 t = 3 或 9。</p>
+<p>第(3)②问　看 P 的活动范围。</p>
+<p>P 始终在线段 AB 上（到 B 就返回，到 A 就停），所以 PA + PB 恰好等于 AB，恒为 18，不发生变化。</p>
+<p><strong>易错点</strong></p>
+<ul>
+<li>回程忘记换表达式，还在用 −10 + 3t（那只在 t ≤ 6 时成立）。</li>
+<li>第(3)①只写 t = 3，漏掉回程的 t = 9 —— 折返题&quot;每个位置都经过两次&quot;。</li>
+<li>第(3)②答&quot;会变化&quot;，误以为 P 在动、距离和就在动。</li>
+</ul>
+<p><strong>变式（换条件练手）</strong></p>
+<p>把第(3)①改成：&quot;当点 P 到点 B 的距离是到点 A 距离的 2 倍时，求 t。&quot;</p>
+<p>答案：去程 18 − 3t = 2 × 3t，得 t = 2；回程 3t − 18 = 2(36 − 3t)，得 t = 10。两次 P 都表示 −4。</p>
+<h2 id="h-30-二-押题-新定义-2倍点-10-分">二、押题②　新定义&quot;2倍点&quot;（10 分）</h2>
+<p><strong>题目</strong></p>
+<p>如图，数轴上点 A 表示的数为 −6，点 B 表示的数为 12。</p>
+<figure class="fig"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 196" width="100%" style="max-width:800px;display:block;margin:0 auto"><defs><marker id="ah_15803d" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 z" fill="#15803d"/></marker><marker id="ah_b45309" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 z" fill="#b45309"/></marker><marker id="ah_1d4ed8" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 z" fill="#1d4ed8"/></marker></defs><rect width="800" height="196" fill="#ffffff"/><g font-family="-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif"><line x1="40.0" y1="105" x2="754.0" y2="105" stroke="#334155" stroke-width="1.6"/>
+<path d="M754.0 105 l-9 -4.5 v9 z" fill="#334155"/>
+<line x1="40.0" y1="99" x2="40.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="40.0" y="126" font-size="11" fill="#334155" text-anchor="middle">-8</text>
+<line x1="72.0" y1="102" x2="72.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="104.0" y1="99" x2="104.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="104.0" y="126" font-size="11" fill="#334155" text-anchor="middle">-6</text>
+<line x1="136.0" y1="102" x2="136.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="168.0" y1="99" x2="168.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="168.0" y="126" font-size="11" fill="#334155" text-anchor="middle">-4</text>
+<line x1="200.0" y1="102" x2="200.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="232.0" y1="99" x2="232.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="232.0" y="126" font-size="11" fill="#334155" text-anchor="middle">-2</text>
+<line x1="264.0" y1="102" x2="264.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="296.0" y1="99" x2="296.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="296.0" y="126" font-size="11" fill="#334155" text-anchor="middle">0</text>
+<line x1="328.0" y1="102" x2="328.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="360.0" y1="99" x2="360.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="360.0" y="126" font-size="11" fill="#334155" text-anchor="middle">2</text>
+<line x1="392.0" y1="102" x2="392.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="424.0" y1="99" x2="424.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="424.0" y="126" font-size="11" fill="#334155" text-anchor="middle">4</text>
+<line x1="456.0" y1="102" x2="456.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="488.0" y1="99" x2="488.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="488.0" y="126" font-size="11" fill="#334155" text-anchor="middle">6</text>
+<line x1="520.0" y1="102" x2="520.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="552.0" y1="99" x2="552.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="552.0" y="126" font-size="11" fill="#334155" text-anchor="middle">8</text>
+<line x1="584.0" y1="102" x2="584.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="616.0" y1="99" x2="616.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="616.0" y="126" font-size="11" fill="#334155" text-anchor="middle">10</text>
+<line x1="648.0" y1="102" x2="648.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="680.0" y1="99" x2="680.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="680.0" y="126" font-size="11" fill="#334155" text-anchor="middle">12</text>
+<line x1="712.0" y1="102" x2="712.0" y2="108" stroke="#94a3b8" stroke-width="1"/>
+<line x1="744.0" y1="99" x2="744.0" y2="111" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="744.0" y="126" font-size="11" fill="#334155" text-anchor="middle">14</text>
+<circle cx="104.0" cy="105" r="5" fill="#1d4ed8"/><text x="104.0" y="91" font-size="14" font-weight="600" fill="#1d4ed8" text-anchor="middle">A（−6）</text>
+<circle cx="680.0" cy="105" r="5" fill="#1d4ed8"/><text x="680.0" y="91" font-size="14" font-weight="600" fill="#1d4ed8" text-anchor="middle">B（12）</text>
+<line x1="114.0" y1="45" x2="670.0" y2="45" stroke="#15803d" stroke-width="1.8" marker-end="url(#ah_15803d)"/><text x="392.0" y="36" font-size="12.5" fill="#15803d" text-anchor="middle">M 从 A 出发　向右 2 单位/秒</text>
+<line x1="670.0" y1="160" x2="114.0" y2="160" stroke="#b45309" stroke-width="1.8" marker-end="url(#ah_b45309)"/><text x="392.0" y="183" font-size="12.5" fill="#b45309" text-anchor="middle">N 从 B 出发　向左 1 单位/秒</text></g></svg></figure>
+<p>定义：若数轴上一点 P 到点 A 的距离是它到点 B 的距离的 2 倍，则称点 P 为线段 AB 的&quot;2倍点&quot;。</p>
+<p>(1) 求线段 AB 的长。</p>
+<p>(2) 求线段 AB 的&quot;2倍点&quot;所表示的数。</p>
+<p>(3) 点 M 从点 A 出发，以每秒 2 个单位长度的速度沿数轴向右运动；同时点 N 从点 B 出发，以每秒 1 个单位长度的速度沿数轴向左运动。设运动时间为 t 秒。</p>
+<p>① 当 t 为何值时，M、N 两点相遇？相遇点表示什么数？</p>
+<p>② 在点 M 运动的过程中，是否存在某个时刻，使点 M 成为线段 AB 的&quot;2倍点&quot;？若存在，求出 t 的值；若不存在，请说明理由。</p>
+<p>③ 当 t 为何值时，M、N 两点相距 6 个单位长度？</p>
+<p><strong>思路与步骤</strong></p>
+<p>第(1)问　AB = |12 − (−6)| = 18。</p>
+<p>第(2)问　设&quot;2倍点&quot;表示的数为 x，则 |x + 6| = 2|x − 12|，按 x 的位置分三类：</p>
+<ul>
+<li>x 在 A、B 之间：x + 6 = 2(12 − x)，3x = 18，x = 6；</li>
+<li>x 在 B 右侧：x + 6 = 2(x − 12)，x = 30；</li>
+<li>x 在 A 左侧：−6 − x = 2(12 − x)，x = 30，与 x &lt; −6 矛盾，无解。</li>
+</ul>
+<p>所以&quot;2倍点&quot;表示的数是 6 或 30。</p>
+<p>几何检验：6 到 A 为 12、到 B 为 6，正好 2 倍；30 到 A 为 36、到 B 为 18，也正好 2 倍。</p>
+<p>第(3)①　相遇 = 路程和等于 AB。</p>
+<p>2t + t = 18，t = 6；相遇点 = −6 + 2 × 6 = 6（用 12 − 6 也能验算）。</p>
+<p>第(3)②　M 表示 −6 + 2t，照着第(2)问的结论反解。</p>
+<p>M 到 A 的距离 = 2t；M 到 B 的距离 = |12 − (−6 + 2t)| = |18 − 2t|。</p>
+<p>令 2t = 2|18 − 2t|，即 t = |18 − 2t|：</p>
+<ul>
+<li>t = 18 − 2t，得 t = 6（此时 M = 6）；</li>
+<li>t = 2t − 18，得 t = 18（此时 M = 30）。</li>
+</ul>
+<p>存在，t = 6 或 18。恰好对应第(2)问的两个&quot;2倍点&quot;，可以互相印证。</p>
+<p>第(3)③　距离 = |M − N|。</p>
+<p>M = −6 + 2t，N = 12 − t，MN = |(−6 + 2t) − (12 − t)| = |3t − 18| = 6。</p>
+<p>3t − 18 = 6，得 t = 8；3t − 18 = −6，得 t = 4。</p>
+<p>所以 t = 4 或 8。</p>
+<p><strong>易错点</strong></p>
+<ul>
+<li>第(2)问只写 x = 6（内分），漏掉 B 右侧的 30 —— 绝对值方程一定两解，第三类解完要回代检验是否落在假设的区间里。</li>
+<li>第(3)②把&quot;到 A 的距离&quot;写成 |M − 12| 之类，左右搞反。</li>
+<li>第(3)③忘记加绝对值，只解出一个 t。</li>
+</ul>
+<p><strong>变式（换数据）</strong></p>
+<p>若 A 表示 −4、B 表示 8，动点 M 仍从 A 以每秒 2 个单位向右：</p>
+<p>&quot;2倍点&quot;为 4 或 20；M 成为&quot;2倍点&quot;时 t = 4 或 12。</p>
+<h2 id="h-63-三-通用四步法-考场可直接套">三、通用四步法（考场可直接套）</h2>
+<ol>
+<li><strong>画图定位</strong>：把 A、B、P 标在数轴上，写出各点表示的数（含 t 的式子）。</li>
+<li><strong>分类</strong>：动点在哪一段？去程还是回程？P 在 A 左侧、AB 之间、还是 B 右侧？</li>
+<li><strong>列式</strong>：距离一律写成 |x₁ − x₂|，相等或倍数关系直接列绝对值方程。</li>
+<li><strong>检验</strong>：解出的 t 是否落在该段的取值范围里；折返题记得两端各解一次。</li>
+</ol>
+<h2 id="h-65-四-答案速查">四、答案速查</h2>
+<div class="table-wrap"><table><thead><tr><th>题号</th><th>(1)</th><th>(2)</th><th>(3)</th></tr></thead><tbody><tr><td>押题①</td><td>AB = 18，t = 6</td><td>P = 2，PB = 6</td><td>① t = 3 或 9；② 不变，恒为 18</td></tr><tr><td>押题②</td><td>AB = 18</td><td>6 或 30</td><td>① t = 6，相遇点 6；② 存在，t = 6 或 18；③ t = 4 或 8</td></tr></tbody></table></div>
+<h2 id="h-67-五-关于-中电初中-这套卷">五、关于&quot;中电初中&quot;这套卷</h2>
+<p>公开渠道没有检索到&quot;北京中电初中&quot;的期中真题（可能是简称、也可能学校不公开试卷），上面的题按<strong>北京地区期中通用口径</strong>命制：人教版 / 北京版第一章有理数为主，压轴位、8—10 分、台阶式小问、往返与新定义并存。</p>
+<p>如果学校有固定的卷型（比如压轴固定在 28 题、10 分、只考三问），发我一份真题或答题卡照片，我按它的题号、分值、难度再校一遍。</p>
+      <div class="footer">
+        Generated 2026-10-29 · html-doc skill ·
+        <a
+          href="#"
+          onclick="
+            window.print();
+            return false;
+          "
+          >打印 / 导出 PDF</a
+        >
+      </div>
+    </div>
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var saved = null;
+        try {
+          saved = localStorage.getItem("html-doc-theme");
+        } catch (e) {}
+        if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
+        var btn = document.getElementById("themeToggle");
+        btn.textContent = root.getAttribute("data-theme") === "dark" ? "☀️ 浅色" : "🌓 深色";
+        btn.addEventListener("click", function () {
+          var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+          root.setAttribute("data-theme", next);
+          btn.textContent = next === "dark" ? "☀️ 浅色" : "🌓 深色";
+          try {
+            localStorage.setItem("html-doc-theme", next);
+          } catch (e) {}
+        });
+      })();
+    </script>
+  </body>
+</html>
