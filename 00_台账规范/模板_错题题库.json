@@ -18,9 +18,7 @@
       "explanation": "详细解析，可多段。",
       "mistake_reason": "错因提醒/复盘重点，可留空。",
       "variant": "同类变式，可留空。",
-      "status": "待复习",
-      "explanation_source": "manual | deeptutor",
-      "verified": false
+      "status": "待复习"
     }
   ]
 }

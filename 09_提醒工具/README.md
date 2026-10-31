@@ -22,7 +22,7 @@
 ## 常用操作
 
 ```bash
-cd "/Users/sambazhu/dshworkplace/朱秋宇初一学习台账/09_提醒工具"
+cd "/Users/sambazhu/呱呱/朱秋宇初一学习台账/09_提醒工具"
 
 # 启动（后台常驻，关掉终端也不影响）
 nohup ./run_reminders.sh > daemon.log 2>&1 &

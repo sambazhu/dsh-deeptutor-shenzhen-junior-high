@@ -1,0 +1,20 @@
+{
+  "unit":"Unit 2",
+  "section":"词性转换",
+  "page":5,
+  "source":"2026-10-30_U2_词性转换_P5.jpg",
+  "items":[
+    {"no":1,"word":"activity","phon":"/ækˈtɪvəti/","pos":"n.","cn":"活动","targets":[["act","v. 行动；n. 行为"],["action","n. 行动；活动"],["actress","n. 女演员"],["active","adj. 积极的"],["actor","n. 男演员"]]},
+    {"no":2,"word":"practise","phon":"/ˈpræktɪs/","pos":"v.","cn":"练习；训练","targets":[["practice","v./n. 练习；训练（美式英语）"],["practical","adj. 实用的；可实施的"]]},
+    {"no":3,"word":"solve","phon":"/sɒlv/","pos":"v.","cn":"解答","targets":[["solution","n. 解决方案；解答"]]},
+    {"no":4,"word":"develop","phon":"/dɪˈveləp/","pos":"v.","cn":"加强；增强","targets":[["development","n. 发展；开发；发育"],["developed","adj. 发达的"],["developing","adj. 发展中的"]]},
+    {"no":5,"word":"skill","phon":"/skɪl/","pos":"n.","cn":"技术；技能","targets":[["skillful","adj. 熟练的；巧妙的"]]},
+    {"no":6,"word":"teen","phon":"/tiːn/","pos":"adj.","cn":"青少年的","targets":[["teenage","adj. 青少年的；n. 青少年时期"],["teenager","n. 十几岁的青少年"]]},
+    {"no":7,"word":"energy","phon":"/ˈenədʒi/","pos":"n.","cn":"精力；活力","targets":[["energetic","adj. 精力充沛的"]]},
+    {"no":8,"word":"luckily","phon":"/ˈlʌkəli/","pos":"adv.","cn":"幸运地；幸好","targets":[["luck","n. 运气"],["lucky","adj. 幸运的"],["unluckily","adv. 不幸地"]]},
+    {"no":9,"word":"presentation","phon":"/ˌpreznˈteɪʃn/","pos":"n.","cn":"演示","targets":[["present","v. 呈现"]]},
+    {"no":10,"word":"celebrate","phon":"/ˈselɪbreɪt/","pos":"v.","cn":"庆祝；庆贺","targets":[["celebration","n. 庆祝"]]},
+    {"no":11,"word":"success","phon":"/səkˈses/","pos":"n.","cn":"成功","targets":[["succeed","v. 成功"],["successful","adj. 成功的"]]},
+    {"no":12,"word":"rocky","phon":"/ˈrɒki/","pos":"adj.","cn":"困难的","targets":[["rock","n. 岩石"]]}
+  ]
+}

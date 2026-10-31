@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any
 
 LEDGER_ROOT = Path(__file__).resolve().parents[1]
-RAW_TEXTBOOK_ROOT = Path("/Users/sambazhu/dshworkplace/初中")
+RAW_TEXTBOOK_ROOT = Path(os.environ.get("RAW_TEXTBOOK_ROOT", Path.home() / "dshworkplace/初中"))
 DEEPTUTOR_HOME = Path(os.environ.get("DEEPTUTOR_HOME", Path.home() / ".deeptutor")).expanduser()
 DEEPTUTOR_BIN = Path(os.environ.get("DEEPTUTOR_LOCAL_BIN", Path.home() / ".local/bin/deeptutor")).expanduser()
 EXPORT_ROOT = DEEPTUTOR_HOME / "data" / "ledger_export"

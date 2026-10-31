@@ -30,7 +30,6 @@
 │   ├── im-intake/
 │   ├── daily-ledger/
 │   ├── wrong-question-filing/
-│   ├── tutor-explain/           # 调用 DeepTutor 教材对齐精讲与变式出题
 │   ├── exam-analysis/
 │   └── weekly-review/
 ├── 01_语文/ 02_数学/ 03_英语/ 04_地理/ 05_历史/ 06_生物/ 07_道法/
@@ -63,7 +62,7 @@
 如果插件支持设置附件保存目录，建议直接指向：
 
 ```text
-/Users/sambazhu/dshworkplace/朱秋宇初一学习台账/00_收件箱/待处理
+/Users/sambazhu/呱呱/朱秋宇初一学习台账/00_收件箱/待处理
 ```
 
 如果不支持，直接发到微信里也可以，我会先另存到收件箱再处理。

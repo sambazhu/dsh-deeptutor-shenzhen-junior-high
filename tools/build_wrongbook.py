@@ -1,7 +1,7 @@
 """根据各学科错题集/题库.json生成两份可打印Word：
 1) 空白练习版；2) 参考答案与讲解版。"""
 from __future__ import annotations
-import argparse, datetime as dt, json, re
+import argparse, datetime as dt, json
 from pathlib import Path
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
@@ -76,33 +76,12 @@ def add_meta(doc, q, n):
         p = doc.add_paragraph(); p.paragraph_format.space_after = Pt(8)
         add_run(p, "  |  ".join(bits), size=8.5, color=(112,112,112))
 
-def add_runs_with_bold(p, text, name=FONT, size=11, base_bold=False, color=None):
-    parts = re.split(r"(\*\*[^*]+\*\*)", str(text))
-    for part in parts:
-        if not part:
-            continue
-        if part.startswith("**") and part.endswith("**") and len(part) > 4:
-            add_run(p, part[2:-2], name=name, size=size, bold=True, color=color)
-        else:
-            add_run(p, part, name=name, size=size, bold=base_bold, color=color)
-
 def add_text(doc, text, size=11, indent=False):
-    for raw_line in str(text or "").split("\n"):
-        stripped = raw_line.strip()
-        if not stripped:
-            continue
-        m_heading = re.match(r"^(#{1,4})\s+(.*)$", stripped)
-        if m_heading:
-            p = doc.add_paragraph()
-            p.paragraph_format.space_before = Pt(5)
-            p.paragraph_format.space_after = Pt(2)
-            add_runs_with_bold(p, m_heading.group(2).strip(), name=HEI, size=size, base_bold=True)
-            continue
+    for line in str(text or "").split("\n"):
         p = doc.add_paragraph()
         p.paragraph_format.space_after = Pt(3)
-        if indent:
-            p.paragraph_format.first_line_indent = Cm(0.74)
-        add_runs_with_bold(p, raw_line, name=FONT, size=size, base_bold=False)
+        if indent: p.paragraph_format.first_line_indent = Cm(0.74)
+        add_run(p, line if line.strip() else " ", size=size)
 
 def add_image(doc, base, rel, max_cm=15):
     if not rel: return
@@ -157,8 +136,6 @@ def normalize_question(q):
     q.setdefault("mistake_reason", "")
     q.setdefault("variant", "")
     q.setdefault("status", "待复习")
-    q.setdefault("explanation_source", "")
-    q.setdefault("verified", False)
     if isinstance(q["question_images"], str):
         q["question_images"] = [q["question_images"]]
     return q
@@ -213,11 +190,6 @@ def build_answers(doc, subject, questions, folder, out_dir):
         add_run(p, (str(q["answer"]).strip() or "❓待补"), size=11, bold=True, color=(192,0,0))
         p = doc.add_paragraph(); p.paragraph_format.space_before = Pt(8)
         add_run(p, "解析：", HEI, 11, True)
-        if q.get("explanation_source") == "deeptutor" and not q.get("verified"):
-            add_run(p, "（DeepTutor生成 · ❓待核对）", size=9.5, bold=True, color=(192, 80, 0))
-        elif q.get("verified"):
-            v_text = q["verified"] if isinstance(q["verified"], str) else "已双法复核"
-            add_run(p, f"（✓ {v_text}）", size=8.5, color=(64, 128, 64))
         add_text(doc, q["explanation"] or "❓待补", size=10.5, indent=True)
         if q["mistake_reason"]:
             p = doc.add_paragraph(); p.paragraph_format.space_before = Pt(8)
@@ -248,7 +220,7 @@ def build_subject(subject):
     if not questions:
         print(f"[跳过] {subject}: 题库为空")
         return None
-    out_dir = folder / "错题集" / "输出"
+    out_dir = folder / "错题集"
     out_dir.mkdir(parents=True, exist_ok=True)
     blank = build_blank(setup_doc(subject, "空白练习版"), subject, questions, folder, out_dir)
     ans = build_answers(setup_doc(subject, "参考答案与讲解"), subject, questions, folder, out_dir)
@@ -266,6 +238,18 @@ def main():
         if build_subject(s):
             built += 1
     print(f"完成：生成 {built} 个学科")
+    if built > 0:
+        sync_script = ROOT / "tools" / "sync_to_deeptutor.py"
+        dt_python = Path.home() / ".deeptutor-venv" / "bin" / "python"
+        py_bin = str(dt_python) if dt_python.exists() else sys.executable
+        if sync_script.exists():
+            print("[自动同步] 正在自动将最新错题录入 DeepTutor 知识库...")
+            import subprocess
+            res = subprocess.run([py_bin, str(sync_script), "--wrongbook"], capture_output=True, text=True)
+            if res.returncode == 0:
+                print("  ✅ DeepTutor 错题知识库自动同步完成！")
+            else:
+                print(f"  ⚠️ DeepTutor 自动同步提示: {res.stderr.strip() or res.stdout.strip()}")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,20 @@
+{
+  "unit": "Unit 1",
+  "section": "词性转换",
+  "page": 3,
+  "source": "2026-10-30_U1_词性转换_P3.jpg",
+  "items": [
+    {"no":1,"word":"honest","phon":"/ˈɒnɪst/","pos":"adj.","cn":"诚实的","targets":[["dishonest","adj.","不诚实的"],["honesty","n.","诚实"]]},
+    {"no":2,"word":"patient","phon":"/ˈpeɪʃnt/","pos":"adj.","cn":"有耐心的","targets":[["patience","n.","耐心"],["impatient","adj.","不耐烦的"],["impatiently","adv.","不耐烦地"]]},
+    {"no":3,"word":"improve","phon":"/ɪmˈpruːv/","pos":"v.","cn":"改进；改善","targets":[["improvement","n.","进步，改善"]]},
+    {"no":4,"word":"confident","phon":"/ˈkɒnfɪdənt/","pos":"adj.","cn":"有自信心的","targets":[["confidence","n.","信心"],["confidently","adv.","自信地"]]},
+    {"no":5,"word":"courage","phon":"/ˈkʌrɪdʒ/","pos":"n.","cn":"勇气；胆量","targets":[["courageous","adj.","有勇气的"]]},
+    {"no":6,"word":"friendship","phon":"/ˈfrendʃɪp/","pos":"n.","cn":"友谊；朋友关系","targets":[["friend","n.","朋友"],["friendly","adj.","友好的"]]},
+    {"no":7,"word":"admiration","phon":"/ˌædməˈreɪʃn/","pos":"n.","cn":"钦佩；赞赏","targets":[["admire","v.","羡慕"]]},
+    {"no":8,"word":"personal","phon":"/ˈpɜːsənl/","pos":"adj.","cn":"个性的","targets":[["person","n.","人"],["persons / people","n.","人（复数）"],["personally","adv.","就个人而言"]]},
+    {"no":9,"word":"describe","phon":"/dɪˈskraɪb/","pos":"v.","cn":"描述；形容","targets":[["description","n.","描述"]]},
+    {"no":10,"word":"appearance","phon":"/əˈpɪərəns/","pos":"n.","cn":"外貌","targets":[["appear","v.","出现"],["disappear","v.","消失"]]},
+    {"no":11,"word":"thought","phon":"/θɔːt/","pos":"n.","cn":"想法","targets":[["think","v.","思考，认为"],["thoughtful","adj.","深思的；体贴的"]]},
+    {"no":12,"word":"end","phon":"/end/","pos":"n.","cn":"结局","targets":[["end","v.","终止，结束"],["endless","adj.","无止尽的"]]}
+  ]
+}
